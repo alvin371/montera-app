@@ -1,5 +1,8 @@
 <?php
 
+// Load custom env helper BEFORE Composer autoloader to prevent illuminate/support conflicts
+require_once __DIR__ . '/../../application/helpers/env_helper.php';
+
 require 'vendor/autoload.php';
 
 use FacebookAds\Object\AdAccount;
@@ -26,6 +29,11 @@ class Api_v3 extends CI_Controller
     function __construct()
     {
         parent::__construct();
+
+        // Load required libraries and models
+        $this->load->model('mymodel');
+        $this->load->database();
+
         $this->app_key_tiktok = '6bt244hb693b0';
         $this->app_secret_tiktok = '3fff1b4badfeb0f59385f6a34cc2377fd3d7425a';
         $this->app_key_lazada = '128067';
@@ -58,17 +66,19 @@ class Api_v3 extends CI_Controller
     function marketplace_ads()
     {
         $dt = $_GET;
-        $marketplace = strtoupper($dt['marketplace']);
-        $shop_id = $dt['shop_id'];
-        $platform = $dt['platform'];
+        $marketplace = isset($dt['marketplace']) ? strtoupper($dt['marketplace']) : null;
+        $shop_id = isset($dt['shop_id']) ? $dt['shop_id'] : null;
+        $platform = isset($dt['platform']) ? $dt['platform'] : null;
         $qry = "";
 
 
         if ($shop_id) {
-            $qry .= " AND shop_id = '$shop_id' ";
+            $shop_id_escaped = $this->db->escape_str($shop_id);
+            $qry .= " AND shop_id = '$shop_id_escaped' ";
         }
         if ($marketplace) {
-            $qry .= " AND opt = '$marketplace' ";
+            $marketplace_escaped = $this->db->escape_str($marketplace);
+            $qry .= " AND opt = '$marketplace_escaped' ";
         }
 
         $data = $this->mymodel->selectWithQuery("SELECT * FROM marketplace_config WHERE status = 'Aktif' $qry");
@@ -255,14 +265,12 @@ class Api_v3 extends CI_Controller
 
                         $detailData = json_decode($detailResponse, true);
 
-                        // ✅ Tampilkan hasil response
-                        echo "Response from get_product_campaign_daily_performance:\n";
-                        print_r($detailData);
-                        
                         // Optional: Add delay between requests to avoid rate limiting
                         sleep(1);
                     }
                 }
+
+                $success = true;
             } else if ($v['opt'] == "META") {
                 $app_id = $this->app_id_meta;
                 $app_secret = $this->app_secret_meta;
@@ -551,8 +559,22 @@ class Api_v3 extends CI_Controller
                     }
                 }
                 $success = true;
-                echo "Data processing complete.";
             }
+        }
+
+        // Return JSON response
+        header('Content-Type: application/json; charset=utf-8');
+        if (isset($success) && $success) {
+            echo json_encode([
+                'status' => true,
+                'message' => 'Data berhasil diproses',
+                'marketplace' => $marketplace ?? null
+            ]);
+        } else {
+            echo json_encode([
+                'status' => false,
+                'message' => 'Tidak ada data yang diproses atau marketplace tidak ditemukan'
+            ]);
         }
     }
 
@@ -714,12 +736,26 @@ class Api_v3 extends CI_Controller
 
     function get_tiktok_campaign()
     {
-        $advertiser_id_result = $this->mymodel->selectWithQuery("SELECT DISTINCT advertiser_id FROM tiktok_ads_data WHERE date = date('Y-m-d')");
-        $advertiser_ids = array_column($advertiser_id_result, 'advertiser_id');
-        $access_token = '095473e58200c563ed770157a084c5bde0e8b544';
-        $report_url = "https://business-api.tiktok.com/open_api/v1.3/report/integrated/get/";
+        try {
+            $today = date('Y-m-d');
+            $advertiser_id_result = $this->mymodel->selectWithQuery("SELECT DISTINCT advertiser_id FROM tiktok_ads_data WHERE date = '$today'");
+            $advertiser_ids = array_column($advertiser_id_result, 'advertiser_id');
 
-        foreach ($advertiser_ids as $advertiser_id) {
+            // Validate advertiser IDs
+            if (empty($advertiser_ids)) {
+                header('Content-Type: application/json; charset=utf-8');
+                echo json_encode([
+                    'status' => false,
+                    'message' => 'No advertiser IDs found for today. Please run the ads sync first.',
+                    'date' => $today
+                ]);
+                return;
+            }
+
+            $access_token = '095473e58200c563ed770157a084c5bde0e8b544';
+            $report_url = "https://business-api.tiktok.com/open_api/v1.3/report/integrated/get/";
+
+            foreach ($advertiser_ids as $advertiser_id) {
             $report_data = [
                 "advertiser_id" => $advertiser_id,
                 "report_type" => "BASIC",
@@ -820,8 +856,6 @@ class Api_v3 extends CI_Controller
                             'date' => date('Y-m-d')
                         ];
 
-                        print_r($dt);
-
                         $query = $this->db->where('campaign_id', $dt['campaign_id'])
                             ->where('date', date('Y-m-d'))
                             ->get('tiktok_campaign_data');
@@ -836,6 +870,26 @@ class Api_v3 extends CI_Controller
                     }
                 }
             }
+        }
+
+            // Return JSON response
+            header('Content-Type: application/json; charset=utf-8');
+            echo json_encode([
+                'status' => true,
+                'message' => 'TikTok campaign data synced successfully',
+                'advertiser_count' => count($advertiser_ids),
+                'date' => date('Y-m-d')
+            ]);
+        } catch (Exception $e) {
+            // Handle errors
+            header('Content-Type: application/json; charset=utf-8');
+            http_response_code(500);
+            echo json_encode([
+                'status' => false,
+                'message' => 'Error syncing TikTok campaign data: ' . $e->getMessage(),
+                'error' => $e->getMessage(),
+                'date' => date('Y-m-d')
+            ]);
         }
     }
     
