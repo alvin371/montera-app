@@ -33,15 +33,23 @@ class Api_v3 extends CI_Controller
         // Load required libraries and models
         $this->load->model('mymodel');
         $this->load->database();
+        $this->load->helper('env');
 
-        $this->app_key_tiktok = '6bt244hb693b0';
-        $this->app_secret_tiktok = '3fff1b4badfeb0f59385f6a34cc2377fd3d7425a';
-        $this->app_key_lazada = '128067';
-        $this->app_secret_lazada = '3HXnltTtHmEqK50hNMnt8MkCur4WTsod';
-        $this->partner_id_shopee = '2007315';
-        $this->partner_key_shopee = '6a53474c517262526c7252416c79446d794a59736b7766747461644b6762636f';
-        $this->app_id_meta = '1847305712461596';
-        $this->app_secret_meta = '1f88cc6b855a1418cfb2ee8b6ef14d8a';
+        // TikTok Shop API credentials
+        $this->app_key_tiktok = env('TIKTOK_APP_KEY', '');
+        $this->app_secret_tiktok = env('TIKTOK_APP_SECRET', '');
+
+        // Lazada API credentials
+        $this->app_key_lazada = env('LAZADA_APP_KEY', '');
+        $this->app_secret_lazada = env('LAZADA_APP_SECRET', '');
+
+        // Shopee API credentials
+        $this->partner_id_shopee = env('SHOPEE_PARTNER_ID', '');
+        $this->partner_key_shopee = env('SHOPEE_PARTNER_KEY', '');
+
+        // Meta/Facebook API credentials
+        $this->app_id_meta = env('META_APP_ID', '');
+        $this->app_secret_meta = env('META_APP_SECRET', '');
 
         header("Access-Control-Allow-Origin: *");
         header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
@@ -372,13 +380,17 @@ class Api_v3 extends CI_Controller
                     }
                 }
             } else if ($v['opt'] == "TIKTOKBC") {
-                $advertiser_url = "https://business-api.tiktok.com/open_api/v1.3/oauth2/advertiser/get/?app_id=7440027918035599376&secret=a449b50cf083a238f0ff519823d6e0ceffb02bd6";
+                $tiktok_bc_app_id = env('TIKTOK_BC_APP_ID', '');
+                $tiktok_bc_secret = env('TIKTOK_BC_APP_SECRET', '');
+                $tiktok_bc_token = env('TIKTOK_BC_ACCESS_TOKEN', '');
+
+                $advertiser_url = "https://business-api.tiktok.com/open_api/v1.3/oauth2/advertiser/get/?app_id={$tiktok_bc_app_id}&secret={$tiktok_bc_secret}";
 
                 $ch = curl_init();
                 curl_setopt($ch, CURLOPT_URL, $advertiser_url);
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
                 curl_setopt($ch, CURLOPT_HTTPHEADER, [
-                    "Access-Token: 095473e58200c563ed770157a084c5bde0e8b544",
+                    "Access-Token: {$tiktok_bc_token}",
                 ]);
 
                 $advertiser_response = curl_exec($ch);
@@ -455,7 +467,7 @@ class Api_v3 extends CI_Controller
                     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
                     curl_setopt($ch, CURLOPT_HTTPHEADER, [
                         "Content-Type: application/json",
-                        "Access-Token: 095473e58200c563ed770157a084c5bde0e8b544"
+                        "Access-Token: {$tiktok_bc_token}"
                     ]);
 
                     $report_response = curl_exec($ch);
@@ -580,13 +592,17 @@ class Api_v3 extends CI_Controller
 
     function get_tiktok_gmv()
     {
-        $advertiser_url = "https://business-api.tiktok.com/open_api/v1.3/oauth2/advertiser/get/?app_id=7440027918035599376&secret=a449b50cf083a238f0ff519823d6e0ceffb02bd6";
+        $tiktok_bc_app_id = env('TIKTOK_BC_APP_ID', '');
+        $tiktok_bc_secret = env('TIKTOK_BC_APP_SECRET', '');
+        $tiktok_bc_token = env('TIKTOK_BC_ACCESS_TOKEN', '');
+
+        $advertiser_url = "https://business-api.tiktok.com/open_api/v1.3/oauth2/advertiser/get/?app_id={$tiktok_bc_app_id}&secret={$tiktok_bc_secret}";
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $advertiser_url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            "Access-Token: 095473e58200c563ed770157a084c5bde0e8b544",
+            "Access-Token: {$tiktok_bc_token}",
         ]);
 
         $advertiser_response = curl_exec($ch);
@@ -607,8 +623,8 @@ class Api_v3 extends CI_Controller
         foreach ($advertiser_data['data']['list'] as $advertiser) {
             $advertiser_id = $advertiser['advertiser_id'];
             $advertiser_name = $advertiser['advertiser_name'];
-            
-            $accessToken = '095473e58200c563ed770157a084c5bde0e8b544';
+
+            $accessToken = $tiktok_bc_token;
             
             // Get advertiser info to retrieve currency
             $info_url = "https://business-api.tiktok.com/open_api/v1.3/advertiser/info/?advertiser_ids=" . urlencode('["' . $advertiser_id . '"]');
@@ -737,6 +753,8 @@ class Api_v3 extends CI_Controller
     function get_tiktok_campaign()
     {
         try {
+            $tiktok_bc_token = env('TIKTOK_BC_ACCESS_TOKEN', '');
+
             $today = date('Y-m-d');
             $advertiser_id_result = $this->mymodel->selectWithQuery("SELECT DISTINCT advertiser_id FROM tiktok_ads_data WHERE date = '$today'");
             $advertiser_ids = array_column($advertiser_id_result, 'advertiser_id');
@@ -752,7 +770,7 @@ class Api_v3 extends CI_Controller
                 return;
             }
 
-            $access_token = '095473e58200c563ed770157a084c5bde0e8b544';
+            $access_token = $tiktok_bc_token;
             $report_url = "https://business-api.tiktok.com/open_api/v1.3/report/integrated/get/";
 
             foreach ($advertiser_ids as $advertiser_id) {

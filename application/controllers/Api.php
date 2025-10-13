@@ -23,7 +23,8 @@ class Api extends CI_Controller
     function __construct()
     {
         parent::__construct();
-        $this->app_secret_tiktok = '3fff1b4badfeb0f59385f6a34cc2377fd3d7425a';
+        $this->load->helper('env');
+        $this->app_secret_tiktok = env('TIKTOK_APP_SECRET', '');
     }
 
     function sync()

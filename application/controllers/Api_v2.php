@@ -23,14 +23,23 @@ class Api_v2 extends CI_Controller
     function __construct()
     {
         parent::__construct();
-        $this->app_key_tiktok = '6bt244hb693b0';
-        $this->app_secret_tiktok = '3fff1b4badfeb0f59385f6a34cc2377fd3d7425a';
-        $this->app_key_lazada = '128067';
-        $this->app_secret_lazada = '3HXnltTtHmEqK50hNMnt8MkCur4WTsod';
-        $this->partner_id_shopee = '2007315';
-        $this->partner_key_shopee = '6a53474c517262526c7252416c79446d794a59736b7766747461644b6762636f';
-        $this->app_id_meta = 1847305712461596;
-        $this->app_secret_meta = '1f88cc6b855a1418cfb2ee8b6ef14d8a';
+        $this->load->helper('env');
+
+        // TikTok Shop API credentials
+        $this->app_key_tiktok = env('TIKTOK_APP_KEY', '');
+        $this->app_secret_tiktok = env('TIKTOK_APP_SECRET', '');
+
+        // Lazada API credentials
+        $this->app_key_lazada = env('LAZADA_APP_KEY', '');
+        $this->app_secret_lazada = env('LAZADA_APP_SECRET', '');
+
+        // Shopee API credentials
+        $this->partner_id_shopee = env('SHOPEE_PARTNER_ID', '');
+        $this->partner_key_shopee = env('SHOPEE_PARTNER_KEY', '');
+
+        // Meta/Facebook API credentials
+        $this->app_id_meta = env('META_APP_ID', '');
+        $this->app_secret_meta = env('META_APP_SECRET', '');
     }
 
     public function index()
