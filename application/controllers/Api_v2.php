@@ -387,6 +387,7 @@ class Api_v2 extends CI_Controller
 
         $shop_id = $response['data']['shops'][0]['id'];
         $shop_name = $response['data']['shops'][0]['name'];
+        $shop_code = $response['data']['shops'][0]['code'];
         $shop = $response['data']['shops'][0];
 
         if (empty($shop_id)) {
@@ -406,6 +407,7 @@ class Api_v2 extends CI_Controller
         $dt['opt'] = $marketplace;
         $dt['status'] = "Aktif";
         $dt['shop_id'] = $shop_id;
+        $dt['shop_code'] = $shop_code;
         $dt['shop_name'] = $shop_name;
 
         if ($check) {
