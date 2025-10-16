@@ -245,6 +245,7 @@ class Api_v2 extends CI_Controller
         $url = 'https://api.lazada.co.id/rest';
 
         $c = new LazopClient($url, $app_key, $app_secret);
+        $c->setDebug(false);
         $request = new LazopRequest('/auth/token/create');
         $request->addApiParam('code', $code);
 
@@ -255,7 +256,6 @@ class Api_v2 extends CI_Controller
         $refresh_token = $response['refresh_token'];
         $expired_at = time() + $response['expires_in'];
 
-        // print_r($response);
 
         if (empty($access_token)) {
             echo 'Koneksi lazada tidak berhasil. Silahkan coba lagi nanti! <a href="' . base_url() . 'marketplace-account">Kembali</a>';
@@ -263,6 +263,7 @@ class Api_v2 extends CI_Controller
         }
 
         $c = new LazopClient($url, $app_key, $app_secret);
+        $c->setDebug(false);
         $request = new LazopRequest('/seller/get', 'GET');
         $response = $c->execute($request, $access_token);
         $response = json_decode($response, true);
