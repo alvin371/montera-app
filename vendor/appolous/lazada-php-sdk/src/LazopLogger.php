@@ -8,7 +8,7 @@ class LazopLogger
 {
 	public function log($logData)
 	{
-		Log::error($logData);
+		// Log::error($logData);
 	}
 }
 ?>

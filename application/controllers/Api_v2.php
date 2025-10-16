@@ -245,7 +245,6 @@ class Api_v2 extends CI_Controller
         $url = 'https://api.lazada.co.id/rest';
 
         $c = new LazopClient($url, $app_key, $app_secret);
-        $c->setDebug(false);
         $request = new LazopRequest('/auth/token/create');
         $request->addApiParam('code', $code);
 
@@ -263,7 +262,6 @@ class Api_v2 extends CI_Controller
         }
 
         $c = new LazopClient($url, $app_key, $app_secret);
-        $c->setDebug(false);
         $request = new LazopRequest('/seller/get', 'GET');
         $response = $c->execute($request, $access_token);
         $response = json_decode($response, true);
