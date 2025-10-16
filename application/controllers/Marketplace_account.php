@@ -1,8 +1,37 @@
 <?php
 
+require_once __DIR__ . '/../../application/helpers/env_helper.php';
+
+require 'vendor/autoload.php';
+
+use Lazada\LazopClient;
+use Lazada\LazopRequest;
+
+
 defined('BASEPATH') or exit('No direct script access allowed');
 class Marketplace_account extends CI_Controller
 {
+    function __construct()
+    {
+        parent::__construct();
+        $this->load->helper('env');
+
+        // TikTok Shop API credentials
+        $this->app_key_tiktok = env('TIKTOK_APP_KEY', '');
+        $this->app_secret_tiktok = env('TIKTOK_APP_SECRET', '');
+
+        // Lazada API credentials
+        $this->app_key_lazada = env('LAZADA_APP_KEY', '');
+        $this->app_secret_lazada = env('LAZADA_APP_SECRET', '');
+
+        // Shopee API credentials
+        $this->partner_id_shopee = env('SHOPEE_PARTNER_ID', '');
+        $this->partner_key_shopee = env('SHOPEE_PARTNER_KEY', '');
+
+        // Meta/Facebook API credentials
+        $this->app_id_meta = env('META_APP_ID', '');
+        $this->app_secret_meta = env('META_APP_SECRET', '');
+    }
     public function index()
     {
         if ($_GET['keyword_category']) {
@@ -477,12 +506,9 @@ class Marketplace_account extends CI_Controller
             redirect($url);
         } else  if ($type == "LAZADA") {
 
-            $this->app_key_lazada = '128067';
-            $this->app_secret_lazada = '3HXnltTtHmEqK50hNMnt8MkCur4WTsod';
-
             $app_key = $this->app_key_lazada;
             $redirectUrl = base_url() . 'api/marketplace/callback/lazada';
-            $redirectUrl = 'https://app.bhskin.co.id/api/marketplace/callback/lazada';
+            $redirectUrl = 'https://app.montera-group.com/api/marketplace/callback/lazada';
 
             $url = 'https://auth.lazada.com/oauth/authorize?response_type=code&force_auth=true&redirect_uri=' . $redirectUrl . '&client_id=' . $app_key;
             redirect($url);
