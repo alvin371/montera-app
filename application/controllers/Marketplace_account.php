@@ -513,10 +513,7 @@ class Marketplace_account extends CI_Controller
             $url = 'https://auth.lazada.com/oauth/authorize?response_type=code&force_auth=true&redirect_uri=' . $redirectUrl . '&client_id=' . $app_key;
             redirect($url);
         } else  if ($type == "SHOPEE") {
-
-            $this->partner_id_shopee = '2007315';
-            $this->partner_key_shopee = '6a53474c517262526c7252416c79446d794a59736b7766747461644b6762636f';
-
+            
             $partner_id = $this->partner_id_shopee;
             $partner_key = $this->partner_key_shopee;
             $host = 'https://partner.shopeemobile.com';
