@@ -3266,6 +3266,77 @@ class Api_v2 extends CI_Controller
         die;
     }
 
+    /**
+     * Download marketplace product image with error handling
+     *
+     * @param string $img_url - URL of the image to download
+     * @param string $id_product - Product/variant ID for filename
+     * @param bool $check_existing - Skip download if file exists and is recent
+     * @return string|false - Returns filename on success, false on failure
+     */
+    private function download_marketplace_image($img_url, $id_product, $check_existing = true)
+    {
+        if (empty($img_url)) {
+            return false;
+        }
+
+        $file_name = $id_product . '.jpg';
+        $img_dir = './assets/img/product_3rd/' . $file_name;
+
+        // Create directory if it doesn't exist
+        if (!is_dir('./assets/img/product_3rd/')) {
+            if (!mkdir('./assets/img/product_3rd/', 0755, true)) {
+                error_log("Failed to create product_3rd directory");
+                return false;
+            }
+        }
+
+        // Skip download if file exists and is recent (less than 24 hours old)
+        if ($check_existing && file_exists($img_dir)) {
+            $file_age = time() - filemtime($img_dir);
+            if ($file_age < 86400) { // 24 hours
+                return $file_name; // Return existing filename
+            }
+        }
+
+        try {
+            // Create stream context with timeout
+            $context = stream_context_create([
+                'http' => [
+                    'timeout' => 10, // 10 second timeout
+                    'ignore_errors' => true,
+                    'user_agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+                ]
+            ]);
+
+            // Download image with error suppression
+            $image_data = @file_get_contents($img_url, false, $context);
+
+            if ($image_data === false) {
+                error_log("Failed to download image from URL: $img_url");
+                return false;
+            }
+
+            // Validate that we got actual image data (at least 100 bytes)
+            if (strlen($image_data) < 100) {
+                error_log("Downloaded image too small (possible error page): $img_url");
+                return false;
+            }
+
+            // Save to filesystem
+            if (file_put_contents($img_dir, $image_data) === false) {
+                error_log("Failed to save image to: $img_dir");
+                return false;
+            }
+
+            return $file_name;
+
+        } catch (Exception $e) {
+            error_log("Image sync exception: " . $e->getMessage() . " for URL: $img_url");
+            return false;
+        }
+    }
+
     function marketplace_product()
     {
 
@@ -3400,14 +3471,11 @@ class Api_v2 extends CI_Controller
 
                         $dt['shop_name'] = $shop_name;
                         $dt['shop_id'] = $shop_id;
-                        // $img_url = $v2['main_images'][0]['urls'][0];
+                        // Download TikTok product image with error handling
                         $img_url = $v2['main_images'][0]['thumb_urls'][0];
-                        if ($img_url) {
-                            $file_name = $id_product . '.jpg';
-                            // $img_dir = '/public_html/app/assets/img/product_3rd/' . $file_name;
-                            $img_dir = './assets/img/product_3rd/' . $file_name;
-                            file_put_contents($img_dir, file_get_contents($img_url));
-                            $dt['img'] = $file_name;
+                        $downloaded_img = $this->download_marketplace_image($img_url, $id_product);
+                        if ($downloaded_img) {
+                            $dt['img'] = $downloaded_img;
                         }
 
                         if ($product) {
@@ -3441,13 +3509,11 @@ class Api_v2 extends CI_Controller
                                 $varian['parent_name'] = $dt['name'];
                                 $varian['id_product_parent'] = $dt['id_product'];
                                 $varian['id_parent'] = $product['id'];
-                                // $img_url = $v3['sales_attributes'][0]['sku_img']['urls'][0];
+                                // Download TikTok variant image with error handling
                                 $img_url = $v3['sales_attributes'][0]['sku_img']['thumb_urls'][0];
-                                if ($img_url) {
-                                    $file_name = $varian['id_product'] . '.jpg';
-                                    $img_dir = './assets/img/product_3rd/' . $file_name;
-                                    file_put_contents($img_dir, file_get_contents($img_url));
-                                    $varian['img'] = $file_name;
+                                $downloaded_img = $this->download_marketplace_image($img_url, $varian['id_product']);
+                                if ($downloaded_img) {
+                                    $varian['img'] = $downloaded_img;
                                 }
                                 $item_list[] = $varian;
                             }
@@ -3589,12 +3655,11 @@ class Api_v2 extends CI_Controller
                         $dt['sku'] = strval($v2['item_sku']);
                         $dt['shop_name'] = $shop_name;
                         $dt['shop_id'] = $shop_id;
+                        // Download Shopee product image with error handling
                         $img_url = $v2['image']['image_url_list'][0];
-                        if ($img_url) {
-                            $file_name = $id_product . '.jpg';
-                            $img_dir = './assets/img/product_3rd/' . $file_name;
-                            file_put_contents($img_dir, file_get_contents($img_url));
-                            $dt['img'] = $file_name;
+                        $downloaded_img = $this->download_marketplace_image($img_url, $id_product);
+                        if ($downloaded_img) {
+                            $dt['img'] = $downloaded_img;
                         }
 
                         if ($product) {
@@ -3663,12 +3728,11 @@ class Api_v2 extends CI_Controller
                                 $varian['parent_name'] = $dt['name'];
                                 $varian['id_product_parent'] = $dt['id_product'];
                                 $varian['id_parent'] = $product['id'];
+                                // Download Shopee variant image with error handling
                                 $img_url = $response['response']['tier_variation'][$k3]['option_list'][0]['image']['image_url'];
-                                if ($img_url) {
-                                    $file_name = $varian['id_product'] . '.jpg';
-                                    $img_dir = './assets/img/product_3rd/' . $file_name;
-                                    file_put_contents($img_dir, file_get_contents($img_url));
-                                    $varian['img'] = $file_name;
+                                $downloaded_img = $this->download_marketplace_image($img_url, $varian['id_product']);
+                                if ($downloaded_img) {
+                                    $varian['img'] = $downloaded_img;
                                 }
                                 $item_list[] = $varian;
                             }
@@ -3757,12 +3821,11 @@ class Api_v2 extends CI_Controller
 
                         $dt['shop_name'] = $shop_name;
                         $dt['shop_id'] = $shop_id;
+                        // Download Lazada product image with error handling
                         $img_url = $v2['images'][0];
-                        if ($img_url) {
-                            $file_name = $id_product . '.jpg';
-                            $img_dir = './assets/img/product_3rd/' . $file_name;
-                            file_put_contents($img_dir, file_get_contents($img_url));
-                            $dt['img'] = $file_name;
+                        $downloaded_img = $this->download_marketplace_image($img_url, $id_product);
+                        if ($downloaded_img) {
+                            $dt['img'] = $downloaded_img;
                         }
 
                         if ($product) {
@@ -3808,12 +3871,11 @@ class Api_v2 extends CI_Controller
                                 $varian['parent_name'] = $dt['name'];
                                 $varian['id_product_parent'] = $dt['id_product'];
                                 $varian['id_parent'] = $product['id'];
+                                // Download Lazada variant image with error handling
                                 $img_url = $v3['Images'][0];
-                                if ($img_url) {
-                                    $file_name = $varian['id_product'] . '.jpg';
-                                    $img_dir = './assets/img/product_3rd/' . $file_name;
-                                    file_put_contents($img_dir, file_get_contents($img_url));
-                                    $varian['img'] = $file_name;
+                                $downloaded_img = $this->download_marketplace_image($img_url, $varian['id_product']);
+                                if ($downloaded_img) {
+                                    $varian['img'] = $downloaded_img;
                                 }
                                 $item_list[] = $varian;
                             }
