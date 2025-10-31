@@ -2932,7 +2932,7 @@ class Transaction extends BaseController
         $dt = $_GET;
         $marketplace = $dt['marketplace'];
         $shop_id = $dt['shop_id'];
-        $start_date = $dt['until_date'];
+        $start_date = $dt['start_date'];
         $until_date = $dt['until_date'];
 
         $curl = curl_init();
@@ -2955,15 +2955,58 @@ class Transaction extends BaseController
 
         curl_close($curl);
         $response = json_decode($response, true);
+
+        // Step 2: Automatically trigger detail sync to populate full order data
+        $detail_sync_result = ['success' => false, 'details_synced' => 0, 'error' => null];
+
         if ($response['status'] == true) {
-            $msg = $response['msg'];
-            echo $this->template->alert_success($msg);
-            die;
-        } else {
-            $msg = $response['msg'];
-            echo $this->template->alert_danger($msg);
-            die;
+            // Call webhook refresh to populate order details (customer, products, payment info)
+            $curl_detail = curl_init();
+            curl_setopt_array($curl_detail, array(
+                CURLOPT_URL => $this->template->endpoint_url() . 'api/marketplace/webhook/refresh',
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => '',
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 60, // Longer timeout for detail sync
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => 'GET',
+            ));
+
+            $detail_response = curl_exec($curl_detail);
+            curl_close($curl_detail);
+
+            if ($detail_response) {
+                $detail_data = json_decode($detail_response, true);
+                $detail_sync_result = [
+                    'success' => true,
+                    'details_synced' => $detail_data['data'] ?? 0,
+                    'error' => null
+                ];
+            } else {
+                $detail_sync_result['error'] = 'Failed to call webhook refresh';
+            }
         }
+
+        // Return full JSON response with sync data
+        $this->output
+            ->set_content_type('application/json')
+            ->set_output(json_encode([
+                'success' => $response['status'] == true,
+                'status' => $response['status'],
+                'message' => $response['msg'],
+                'data' => $response['data'] ?? [],
+                'marketplace' => $marketplace,
+                'shop_id' => $shop_id,
+                'date_range' => [
+                    'start_date' => $start_date,
+                    'until_date' => $until_date
+                ],
+                'detail_sync' => $detail_sync_result,
+                'html_message' => $response['status'] == true
+                    ? $this->template->alert_success($response['msg'] . ' Details populated: ' . $detail_sync_result['details_synced'])
+                    : $this->template->alert_danger($response['msg'])
+            ]));
     }
 
     public function import_resi()

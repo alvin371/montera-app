@@ -38,6 +38,7 @@ foreach ($store as $k => $v) {
 				type: "POST",
 				url: form.attr("action"),
 				data: mydata,
+				dataType: 'json',
 				cache: false,
 				contentType: false,
 				processData: false,
@@ -51,19 +52,32 @@ foreach ($store as $k => $v) {
 					form.find(".form-message").slideUp().html("");
 				},
 				success: function(response, textStatus, xhr) {
-					var str = response;
-					console.log(str);
-					if (str.indexOf("success") != -1) {
-						$(".form-message").hide().html(response).slideDown("fast");
-						setTimeout(function() {
-							window.location.href = "";
-							$(".btn-send-sync")
-								.removeClass("disabled")
-								.html("Sync Data")
-								.attr("disabled", false);
-						}, 2500);
+					// Enhanced console logging with full sync data + detail sync
+					console.log("=== SYNC DATA RESPONSE ===");
+					console.log("Full Response Object:", response);
+					console.log("Success Status:", response.success);
+					console.log("Message:", response.message);
+					console.log("Marketplace:", response.marketplace);
+					console.log("Shop ID:", response.shop_id);
+					console.log("Date Range:", response.date_range);
+					console.log("Sync Data:", response.data);
+					console.log("Data Count:", Array.isArray(response.data) ? response.data.length : 'N/A');
+					console.log("--- DETAIL SYNC RESULTS ---");
+					console.log("Detail Sync Success:", response.detail_sync.success);
+					console.log("Details Populated:", response.detail_sync.details_synced);
+					console.log("Detail Sync Error:", response.detail_sync.error || 'None');
+					console.log("==========================");
+
+					// Display the HTML message to user
+					if (response.success) {
+						$(".form-message").hide().html(response.html_message).slideDown("fast");
+						// Page refresh removed - keeping modal open
+						$(".btn-send-sync")
+							.removeClass("disabled")
+							.html("Sync Data")
+							.attr("disabled", false);
 					} else {
-						$(".form-message").hide().html(response).slideDown("fast");
+						$(".form-message").hide().html(response.html_message).slideDown("fast");
 						$(".btn-send-sync")
 							.removeClass("disabled")
 							.html("Sync Data")

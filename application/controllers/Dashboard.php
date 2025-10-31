@@ -586,17 +586,12 @@ class Dashboard extends BaseController
         $data['penjualan_bersih'] = $sql_penjualan_bersih['result'];
 
         $sql_hpp =$this->mymodel->selectWithQuery("
-            SELECT 
+            SELECT
                 ((qty_out_pos + qty_out) * a.price_buy) AS total_hpp
-            FROM (
-                SELECT * 
-                FROM product WHERE is_varian = 0
-            ) a
+            FROM product a
             LEFT JOIN (
-                SELECT 
+                SELECT
                     a.product,
-                    a.brand,
-                    a.marketplace,
                     SUM(a.qty_in) AS qty_in,
                     SUM(a.qty_in_pos) AS qty_in_pos,
                     SUM(a.qty_out) AS qty_out,
@@ -609,7 +604,7 @@ class Dashboard extends BaseController
                 AND a.order_status NOT IN ('RETURN','REFUND','CANCELLED','IN_CANCELLED')
                 GROUP BY a.product
             ) b ON a.id = b.product
-            WHERE b.qty_out_pos > 0 $qry_stock
+            WHERE a.is_varian = 0 AND b.qty_out_pos > 0 $qry_stock
             ORDER BY b.qty_out_pos DESC;
         ");
 
@@ -665,10 +660,8 @@ class Dashboard extends BaseController
             SELECT ((qty_out_pos + qty_out) * a.price_buy) AS total_hpp
             FROM product a
             LEFT JOIN (
-                SELECT 
+                SELECT
                     a.product,
-                    a.brand,
-                    a.marketplace,
                     SUM(a.qty_in) AS qty_in,
                     SUM(a.qty_in_pos) AS qty_in_pos,
                     SUM(a.qty_out) AS qty_out,
