@@ -255,6 +255,7 @@ class Product extends BaseController
         $status = $_GET['status'] ?? 'all';
         $brand = $_GET['brand'] ?? null;
         $marketplace = $_GET['marketplace'] ?? null;
+        $source = $_GET['source'] ?? 'internal'; // internal, marketplace, or all
 
         $qry = "1=1";
 
@@ -342,9 +343,100 @@ class Product extends BaseController
 
         $query = array_filter($query);
 
-        $data['data'] = $query;
+        // Handle marketplace products if source is 'marketplace' or 'all'
+        $marketplace_products = array();
+        if ($source === 'marketplace' || $source === 'all') {
+            $marketplace_products = $this->get_marketplace_products($keyword_category, $keyword, $status, $brand, $marketplace, $sort, $order, $offset, $limit);
+        }
+
+        // Combine results if source is 'all'
+        if ($source === 'all') {
+            $data['data'] = array_merge($query, $marketplace_products);
+        } elseif ($source === 'marketplace') {
+            $data['data'] = $marketplace_products;
+        } else {
+            $data['data'] = $query;
+        }
+
         $data['start'] = $offset;
+        $data['source'] = $source;
         $this->load->view("product/item", $data);
+    }
+
+    /**
+     * Get marketplace products from product_3rd table
+     */
+    private function get_marketplace_products($keyword_category, $keyword, $status, $brand, $marketplace, $sort, $order, $offset, $limit)
+    {
+        $qry = "1=1";
+
+        if ($brand) {
+            $qry .= " AND brand = '$brand'";
+        }
+
+        if ($marketplace) {
+            $qry .= " AND marketplace = '$marketplace'";
+        }
+
+        if ($keyword) {
+            switch ($keyword_category) {
+                case "Nama Produk":
+                    $qry .= " AND name LIKE '%$keyword%'";
+                    break;
+                case "SKU":
+                    $qry .= " AND sku LIKE '%$keyword%'";
+                    break;
+                case "Brand":
+                    $qry .= " AND brand LIKE '%$keyword%'";
+                    break;
+            }
+        }
+
+        // Map internal sort columns to product_3rd columns
+        $allowed_sort_columns = ['name', 'sku', 'brand'];
+        if (!in_array($sort, $allowed_sort_columns)) {
+            $sort = 'name';
+        }
+
+        $base_query = "SELECT * FROM product_3rd WHERE $qry";
+
+        if ($status === 'active') {
+            $base_query .= " AND status = 'Aktif'";
+        } elseif ($status === 'inactive') {
+            $base_query .= " AND status = 'Tidak Aktif'";
+        }
+
+        $base_query .= " ORDER BY $sort $order LIMIT $offset, $limit";
+
+        $query = $this->mymodel->selectWithQuery($base_query);
+
+        // Fetch variants for each marketplace product
+        foreach ($query as &$product) {
+            $product['is_marketplace'] = true;
+            $product['source'] = 'marketplace';
+
+            // Get variants
+            $variants = $this->mymodel->selectWithQuery(
+                "SELECT * FROM product_variant_3rd WHERE id_parent = {$product['id']} ORDER BY name ASC"
+            );
+
+            $product['variants'] = $variants;
+            $product['has_variants'] = !empty($variants);
+
+            // Check configuration status
+            $configured_count = 0;
+            foreach ($variants as $variant) {
+                if (!empty($variant['json'])) {
+                    $configured_count++;
+                }
+            }
+
+            $product['configured_variants'] = $configured_count;
+            $product['total_variants'] = count($variants);
+            $product['is_configured'] = ($configured_count > 0);
+        }
+
+        return $query;
     }
 
     public function item_operasional()

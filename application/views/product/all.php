@@ -267,6 +267,26 @@
                 </a>
             </div>
 
+            <!-- Source Filter Tabs (Internal vs Marketplace) -->
+            <div class="status-tabs" style="margin-top: 15px; border-top: 1px solid #e8e8e8; padding-top: 15px;">
+                <span style="color: rgba(0,0,0,0.45); font-size: 12px; margin-right: 10px;">Source:</span>
+                <a href="<?= base_url('product?source=internal') ?>"
+                   class="tab-link <?= (!isset($_GET['source']) || $_GET['source'] == 'internal' ? 'active' : '') ?>"
+                   style="font-size: 13px;">
+                   <i class="bi bi-box-seam"></i> Internal Products
+                </a>
+                <a href="<?= base_url('product?source=marketplace') ?>"
+                   class="tab-link <?= (isset($_GET['source']) && $_GET['source'] == 'marketplace' ? 'active' : '') ?>"
+                   style="font-size: 13px;">
+                   <i class="bi bi-shop"></i> Marketplace Products
+                </a>
+                <a href="<?= base_url('product?source=all') ?>"
+                   class="tab-link <?= (isset($_GET['source']) && $_GET['source'] == 'all' ? 'active' : '') ?>"
+                   style="font-size: 13px;">
+                   <i class="bi bi-grid"></i> All Products
+                </a>
+            </div>
+
             <!-- Search Form -->
             <form action="<?= base_url('product') ?>" method="GET" class="search-form">
                 <div class="row g-2 mb-3">
@@ -320,6 +340,9 @@
                                         </a>
                                     </div>
                                 </div>
+                            </th>
+                            <th class="text-start" style="width: 130px;">
+                                <span>SOURCE / SHOP</span>
                             </th>
                             <th class="text-start" style="width: 150px;">
                                 <div class="d-flex align-items-center">
