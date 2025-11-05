@@ -1,7 +1,7 @@
 <div class="fullscreen-container">
   <div class="login-container text-start">
     <div class="login-logo">
-      <img src="<?= base_url() ?>/assets/img/logo.png" style="height:100px; width: 100px; margin-top: -20px;" alt="" class="">
+      <img src="<?= base_url() ?>/assets/img/montera-logo.png" style="height:100px; width: 100px; margin-top: -20px;" alt="" class="">
     </div>
     <form action="<?= base_url() ?>/auth/login-process" id="form" method="POST" class="text-white" style="margin-top: -20px;">
        <div class="form-message"></div> 
@@ -44,7 +44,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    background: url("<?php echo base_url('assets/img/bg-login.jpg'); ?>") no-repeat center center fixed;
+    background: url("<?php echo base_url('assets/img/bg-image.png'); ?>") no-repeat center center fixed;
     background-size: cover;
   }
 

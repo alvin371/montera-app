@@ -799,7 +799,7 @@ class Template
 
     function title()
     {
-        return 'Bhskin App';
+        return 'Montera System';
     }
 
     function hex($i)
