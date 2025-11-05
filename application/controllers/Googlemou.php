@@ -160,7 +160,7 @@ class Googlemou extends BaseController
     //     $tglIndo    = $this->_format_tanggal_id(date('Y-m-d'));
 
     //     $repl = [
-    //         'brand'                       => $campaign['brand_name'] ?? 'BHSKIN',
+    //         'brand'                       => $campaign['brand_name'] ?? 'MONTERA',
     //         'pic'                         => $picName,
     //         'full_name'                   => $inf['full_name'] ?? $inf['name'] ?? $nama_creator,
     //         'alamat'                      => $inf['address'] ?? '-',
@@ -361,7 +361,7 @@ class Googlemou extends BaseController
         } else if ($brand_raw == 'POME') {
             $brand = 'POME';
         } else {
-            $brand = 'BHSKIN';
+            $brand = 'MONTERA';
         }
 
         // === BUILD SOW ===
@@ -717,11 +717,11 @@ class Googlemou extends BaseController
 
             $linkView = $doc_url ?: $pdf_url;
             $body = "Halo kak {$inf['full_name']},\n\n"
-                . "Terlampir dokumen MoU kerja sama dengan BHSKIN untuk dapat ditinjau.\n"
+                . "Terlampir dokumen MoU kerja sama dengan MONTERA untuk dapat ditinjau.\n"
                 . "Silakan dibaca kembali, dan hubungi kami jika ada hal yang ingin ditanyakan.\n\n"
                 . "Terima kasih atas kerja samanya.\n\n"
                 . "Salam,\n"
-                . "Tim BHSKIN";
+                . "Tim MONTERA";
             $this->email->message($body);
 
 

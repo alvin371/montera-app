@@ -4,7 +4,7 @@ class Mailtest extends CI_Controller {
         $this->email->initialize($cfg);
         $this->email->set_newline("\r\n");
         $this->email->set_crlf("\r\n");
-        $this->email->from('mou@bhskin.co.id', 'BHSKIN - MoU System');
+        $this->email->from('mou@bhskin.co.id', 'MONTERA - MoU System');
         $this->email->to('viraanjayyy@gmail.com');
         $this->email->subject('Tes Email Hostinger');
         $this->email->message('<p>Halo, ini percobaan kirim email via Hostinger SMTP.</p>');

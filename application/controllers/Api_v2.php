@@ -49,7 +49,7 @@ class Api_v2 extends CI_Controller
         $html = array();
         $html['status'] = true;
         $html['data'] = $dt;
-        $html['msg'] = "Bhskin REST API access has been successful!";
+        $html['msg'] = "Montera System REST API access has been successful!";
         echo json_encode($html, true);
     }
     
@@ -3956,7 +3956,7 @@ class Api_v2 extends CI_Controller
                 $html = array();
                 $html['status'] = false;
                 $html['data'] = array();
-                $html['msg'] = "Bhskin influencer cronjob will be processed at " . $target . "!";
+                $html['msg'] = "Montera System influencer cronjob will be processed at " . $target . "!";
                 echo json_encode($html, true);
                 die;
             }
@@ -4385,7 +4385,7 @@ class Api_v2 extends CI_Controller
                 $html = array();
                 $html['status'] = false;
                 $html['data'] = array();
-                $html['msg'] = "Bhskin influencer cronjob will be processed at " . $target . "!";
+                $html['msg'] = "Montera System influencer cronjob will be processed at " . $target . "!";
                 echo json_encode($html, true);
                 die;
             }
@@ -4742,7 +4742,7 @@ class Api_v2 extends CI_Controller
                 $html = array();
                 $html['status'] = false;
                 $html['data'] = array();
-                $html['msg'] = "Bhskin endorse campaign cronjob will be processed at " . $target . "!";
+                $html['msg'] = "Montera System endorse campaign cronjob will be processed at " . $target . "!";
                 echo json_encode($html, true);
                 die;
             }
@@ -4814,14 +4814,14 @@ class Api_v2 extends CI_Controller
             $html = array();
             $html['status'] = true;
             $html['data'] = $dtt;
-            $html['msg'] = "Bhskin webhook live access has been successful!";
+            $html['msg'] = "Montera System webhook live access has been successful!";
             echo json_encode($html, true);
             die;
         } else {
             $html = array();
             $html['status'] = false;
             $html['data'] = array();
-            $html['msg'] = "Bhskin webhook live access has been unsuccessful!";
+            $html['msg'] = "Montera System webhook live access has been unsuccessful!";
             echo json_encode($html, true);
             die;
         }

@@ -431,7 +431,7 @@ class Marketplace_account extends CI_Controller
         if ($dt['channel'] == "tiktok") {
         } else if ($dt['channel'] == "shopee") {
         } else {
-            $url = 'https://app.bhskin.co.id/api/auth/lazada';
+            $url = base_url() . 'api/auth/lazada';
             // $url = base_url() . 'api/auth/lazada';
             $url = 'https://auth.lazada.com/oauth/authorize?response_type=code&force_auth=true&redirect_uri=' . $url . '&client_id=' . $app_key;
             return redirect($url);
