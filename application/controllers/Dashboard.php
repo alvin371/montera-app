@@ -896,7 +896,6 @@ class Dashboard extends BaseController
                     s.product,
                     -- sertakan brand dari tabel product agar bisa dipakai filter brand di WHERE akhir
                     p.brand,
-                    s.marketplace,
                     SUM(s.qty_in)        AS qty_in,
                     SUM(s.qty_in_pos)    AS qty_in_pos,
                     SUM(s.qty_out)       AS qty_out,

@@ -5076,67 +5076,361 @@ class Transaction extends BaseController
 
     function download_process()
     {
+        // Load PhpSpreadsheet library
+        require_once APPPATH . '../vendor/autoload.php';
 
-        $start_date = $_GET['start_date'];
-        $until_date = $_GET['until_date'];
+        // Get all parameters from POST or GET
+        $start_date = $_POST['start_date'] ?? $_GET['start_date'] ?? DATE('Y-m-01');
+        $until_date = $_POST['until_date'] ?? $_GET['until_date'] ?? DATE('Y-m-d');
+        $brand = $_POST['brand'] ?? $_GET['brand'] ?? '';
+        $marketplace = $_POST['marketplace'] ?? $_GET['marketplace'] ?? '';
+        $cs = $_POST['cs'] ?? $_GET['cs'] ?? '';
+        $keyword = $_POST['keyword'] ?? $_GET['keyword'] ?? '';
+        $keyword_category = $_POST['keyword_category'] ?? $_GET['keyword_category'] ?? '';
+        $id = $_POST['id'] ?? $_GET['id'] ?? '';
+        $order_status = $_POST['order_status'] ?? $_GET['order_status'] ?? '';
+        $ekspedisi = $_POST['ekspedisi'] ?? $_GET['ekspedisi'] ?? '';
+        $order_type = $_POST['order_type'] ?? $_GET['order_type'] ?? '';
+        $ids = $_POST['ids'] ?? $_GET['ids'] ?? '';
 
-        $datediff = strtotime($until_date) - strtotime($start_date);
-
-        $days = round($datediff / (60 * 60 * 24));
-
-        if ($start_date == "" || $until_date == "") {
-            $msg = "Buat file order tidak berhasil. Buat file order hanya bisa maksimal 3 hari!";
-            echo $this->template->alert_danger($msg);
-            die;
-        } else if ($days >= 0 && $days <= 2) {
-            // continue...
-        } else {
-            $msg = "Buat file order tidak berhasil. Buat file order hanya bisa maksimal 3 hari!";
+        // Validate dates
+        if (empty($start_date) || empty($until_date)) {
+            $msg = "Tanggal mulai dan tanggal akhir harus diisi!";
             echo $this->template->alert_danger($msg);
             die;
         }
 
+        // Build query
+        $qry = " DATE(date) >= '$start_date' AND DATE(date) <= '$until_date' ";
 
-        $last_data = $this->mymodel->selectWithQuery("SELECT created_at
-        FROM download_file
-        ORDER BY id DESC
-        LIMIT 1");
-        $last_data = $last_data[0];
-        if ($last_data) {
-            $diff =  strtotime(DATE("Y-m-d H:i:s")) - strtotime($last_data['created_at']);
-            if ($diff <= 60) {
-                $msg = "Buat file order tidak berhasil. Buat file bisa dilakukan " . (61 - $diff) . " detik lagi!";
-                echo $this->template->alert_danger($msg);
-                die;
+        if ($id) {
+            $qry .= " AND customer = '$id' ";
+        }
+
+        if ($ids) {
+            $qry .= " AND id IN ($ids) ";
+        }
+
+        if ($brand) {
+            $brand_escaped = $this->db->escape_str($brand);
+            $qry .= " AND brand = '$brand_escaped' ";
+        }
+
+        if ($ekspedisi) {
+            $ekspedisi_escaped = $this->db->escape_str($ekspedisi);
+            $qry .= " AND shipping = '$ekspedisi_escaped' ";
+        }
+
+        if ($marketplace) {
+            $marketplace_escaped = $this->db->escape_str($marketplace);
+            $qry .= " AND marketplace = '$marketplace_escaped' ";
+        }
+
+        if ($cs) {
+            $cs_escaped = $this->db->escape_str($cs);
+            $qry .= " AND cs = '$cs_escaped' ";
+        }
+
+        if ($order_status) {
+            if ($order_status == "WEBHOOK") {
+                $qry .= " AND is_webhook = 0 AND is_manual = 0";
+            } else if ($order_status == "ACTIVE") {
+                $qry .= " AND order_status NOT IN ('RETURN','REFUND','CANCELLED','IN_CANCELLED','UNPAID') ";
+            } else if ($order_status == "READY_TO_SHIP") {
+                $qry .= " AND order_status IN ('READY_TO_SHIP','PENDING') ";
+            } else if ($order_status == "UNPAID") {
+                $qry .= " AND payment_status = 'Unpaid' AND order_status NOT IN ('RETURN','REFUND','CANCELLED','IN_CANCELLED') ";
+            } else if ($order_status == "SETTLEMENT") {
+                $qry .= " AND dana_pencairan > 0 AND is_disbursement > 0 ";
+            } else if ($order_status == "CANCELLED") {
+                $qry .= " AND order_status IN ('CANCELLED','IN_CANCEL') ";
+            } else {
+                $order_status_escaped = $this->db->escape_str($order_status);
+                $qry .= " AND order_status = '$order_status_escaped' ";
             }
         }
 
-        $param = $this->template->get_param();
-        $url = base_url() . '/api/marketplace/order/download' . $param;
+        if ($keyword) {
+            $keyword_escaped = $this->db->escape_str($keyword);
+            if ($keyword_category == "Order ID") {
+                $qry .= " AND order_id LIKE '%$keyword_escaped%' ";
+            } else if ($keyword_category == "Username") {
+                $qry .= " AND c_username LIKE '%$keyword_escaped%' ";
+            } else if ($keyword_category == "Nama Pelanggan") {
+                $qry .= " AND customer_text LIKE '%$keyword_escaped%' ";
+            } else if ($keyword_category == "Nomor Pelanggan") {
+                $qry .= " AND phone LIKE '%$keyword_escaped%' ";
+            } else if ($keyword_category == "Nomor Resi") {
+                $qry .= " AND awb_number LIKE '%$keyword_escaped%' ";
+            } else if ($keyword_category == "Nama Produk") {
+                $qry .= " AND pesanan LIKE '%$keyword_escaped%' ";
+            }
+        }
 
-        $curl = curl_init();
+        if ($order_type == "Manual") {
+            $qry .= " AND is_manual = 1 ";
+        } else if ($order_type == "Marketplace") {
+            $qry .= " AND is_manual = 0 ";
+        }
 
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => $url,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 1,
-            CURLOPT_TIMEOUT => 1,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POSTFIELDS => '',
-            CURLOPT_HTTPHEADER => array(
-                'Content-Type: application/json',
-                'Cookie: ci_session=sn9ulsif4722g1tahm420n9jspeihuck'
-            ),
-        ));
+        // Fetch data
+        $query = $this->mymodel->selectWithQuery("SELECT * FROM transaction
+            WHERE $qry AND type_sub = 'POS'
+            ORDER BY date DESC, id DESC");
 
-        $response = curl_exec($curl);
+        if (empty($query)) {
+            $msg = "Tidak ada data untuk diekspor dengan filter yang dipilih!";
+            echo $this->template->alert_warning($msg);
+            die;
+        }
 
+        // Generate filename
+        $filename = 'ORDER.';
+        if ($marketplace) {
+            $filename .= $marketplace . '.';
+        }
+        $filename .= $this->template->date_format($start_date) . '.' . $this->template->date_format($until_date);
+        $filename .= '.' . time() . '.xlsx';
 
-        $msg = "Buat file order berhasil. Silahkan tunggu hingga proses selesai!";
-        echo $this->template->alert_success($msg);
+        // Create spreadsheet
+        $spreadsheet = new Spreadsheet();
+        $spreadsheet->getProperties()
+            ->setCreator('KARYA STUDIO TEKNOLOGI DIGITAL')
+            ->setLastModifiedBy('KARYA STUDIO TEKNOLOGI DIGITAL')
+            ->setTitle('ORDER.' . $this->template->date_format($start_date) . '.' . $this->template->date_format($until_date))
+            ->setSubject('ORDER')
+            ->setDescription('Transaction Export');
+
+        $sheet = $spreadsheet->getActiveSheet();
+
+        // Get products for dynamic columns
+        $products = $this->mymodel->selectWithQuery("SELECT * FROM product WHERE status = 'Aktif' ORDER BY sku ASC");
+
+        // Build headers
+        $headers = ['ID', 'TGL ORDER', 'TGL RTS', 'ORDER ID', 'BRAND', 'KET', 'KODE CS', 'CB/CL', 'NAMA', 'NO HP',
+                    'USERNAME', 'ALAMAT', 'KAB', 'PROV', 'PESANAN'];
+
+        // Add product columns
+        foreach ($products as $product) {
+            $headers[] = $product['sku'];
+        }
+
+        // Add remaining columns
+        $headers = array_merge($headers, ['OMSET KOTOR', 'DISKON & VOUCHER PENJUAL', 'BIAYA LAINNYA', 'OMSET BERSIH',
+                    'MARKETPLACE FEE', 'AFFILIATE FEE', 'TOTAL PENCAIRAN DANA', 'IS_CAIR', 'RETURN',
+                    'JENIS PEMBAYARAN', 'JUMLAH', 'TANGGAL TF', 'TANGGAL CEK', 'ACC',
+                    'EKSPEDISI', 'NO RESI', 'ALAMAT', 'PROV', 'KAB', 'KEC', 'CATATAN', 'STATUS ORDER']);
+
+        // Write headers
+        $col = 1;
+        foreach ($headers as $header) {
+            $cell = $this->template->get_name_from_number($col) . '1';
+            $sheet->setCellValue($cell, $header);
+            $col++;
+        }
+
+        // Style for headers
+        $headerStyle = [
+            'font' => ['bold' => true],
+            'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
+            'borders' => [
+                'allBorders' => ['borderStyle' => Border::BORDER_THIN]
+            ],
+            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'aeb5bc']]
+        ];
+        $endCell = $this->template->get_name_from_number($col - 1) . '1';
+        $sheet->getStyle('A1:' . $endCell)->applyFromArray($headerStyle);
+
+        // Write data rows
+        $row = 2;
+        foreach ($query as $transaction) {
+            $col = 1;
+
+            // Basic transaction data
+            $sheet->setCellValue($this->template->get_name_from_number($col++) . $row, $transaction['id']);
+            $sheet->setCellValue($this->template->get_name_from_number($col++) . $row, $transaction['date']);
+            $sheet->setCellValue($this->template->get_name_from_number($col++) . $row, $transaction['date_rts']);
+            $sheet->setCellValue($this->template->get_name_from_number($col++) . $row, $transaction['order_id']);
+            $sheet->setCellValue($this->template->get_name_from_number($col++) . $row, $transaction['brand']);
+            $sheet->setCellValue($this->template->get_name_from_number($col++) . $row, $transaction['marketplace']);
+            $sheet->setCellValue($this->template->get_name_from_number($col++) . $row, $transaction['cs']);
+            $sheet->setCellValue($this->template->get_name_from_number($col++) . $row, $transaction['cb_cl']);
+            $sheet->setCellValue($this->template->get_name_from_number($col++) . $row, $transaction['customer_text']);
+            $sheet->setCellValue($this->template->get_name_from_number($col++) . $row, $transaction['phone']);
+            $sheet->setCellValue($this->template->get_name_from_number($col++) . $row, $transaction['c_username']);
+            $sheet->setCellValue($this->template->get_name_from_number($col++) . $row, $transaction['address']);
+            $sheet->setCellValue($this->template->get_name_from_number($col++) . $row, $transaction['kabupaten']);
+            $sheet->setCellValue($this->template->get_name_from_number($col++) . $row, $transaction['provinsi']);
+            $sheet->setCellValue($this->template->get_name_from_number($col++) . $row, $transaction['pesanan']);
+
+            // Product quantities (parse from transaction)
+            foreach ($products as $product) {
+                $qty = 0;
+                // You may need to parse product quantities from transaction data
+                $sheet->setCellValue($this->template->get_name_from_number($col++) . $row, $qty);
+            }
+
+            // Financial data
+            $sheet->setCellValue($this->template->get_name_from_number($col++) . $row, $transaction['total_amount']);
+            $sheet->setCellValue($this->template->get_name_from_number($col++) . $row, $transaction['diskon']);
+            $sheet->setCellValue($this->template->get_name_from_number($col++) . $row, $transaction['biaya_lainnya']);
+            $sheet->setCellValue($this->template->get_name_from_number($col++) . $row, $transaction['omset_bersih']);
+            $sheet->setCellValue($this->template->get_name_from_number($col++) . $row, $transaction['marketplace_fee']);
+            $sheet->setCellValue($this->template->get_name_from_number($col++) . $row, $transaction['affiliate_fee']);
+            $sheet->setCellValue($this->template->get_name_from_number($col++) . $row, $transaction['dana_pencairan']);
+            $sheet->setCellValue($this->template->get_name_from_number($col++) . $row, $transaction['is_disbursement']);
+            $sheet->setCellValue($this->template->get_name_from_number($col++) . $row, $transaction['return_status']);
+            $sheet->setCellValue($this->template->get_name_from_number($col++) . $row, $transaction['payment_method']);
+            $sheet->setCellValue($this->template->get_name_from_number($col++) . $row, $transaction['total_amount']);
+            $sheet->setCellValue($this->template->get_name_from_number($col++) . $row, $transaction['payment_date']);
+            $sheet->setCellValue($this->template->get_name_from_number($col++) . $row, $transaction['check_date']);
+            $sheet->setCellValue($this->template->get_name_from_number($col++) . $row, $transaction['is_acc']);
+            $sheet->setCellValue($this->template->get_name_from_number($col++) . $row, $transaction['shipping']);
+            $sheet->setCellValue($this->template->get_name_from_number($col++) . $row, $transaction['awb_number']);
+            $sheet->setCellValue($this->template->get_name_from_number($col++) . $row, $transaction['address']);
+            $sheet->setCellValue($this->template->get_name_from_number($col++) . $row, $transaction['provinsi']);
+            $sheet->setCellValue($this->template->get_name_from_number($col++) . $row, $transaction['kabupaten']);
+            $sheet->setCellValue($this->template->get_name_from_number($col++) . $row, $transaction['kecamatan']);
+            $sheet->setCellValue($this->template->get_name_from_number($col++) . $row, $transaction['note']);
+            $sheet->setCellValue($this->template->get_name_from_number($col++) . $row, $transaction['order_status']);
+
+            $row++;
+        }
+
+        // Set column auto-width for better readability
+        for ($i = 1; $i < $col; $i++) {
+            $columnLetter = $this->template->get_name_from_number($i);
+            $sheet->getColumnDimension($columnLetter)->setAutoSize(true);
+        }
+
+        // Output directly to browser
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="' . $filename . '"');
+        header('Cache-Control: max-age=0');
+
+        $writer = new Xlsx($spreadsheet);
+        $writer->save('php://output');
+
+        $spreadsheet->disconnectWorksheets();
+        unset($spreadsheet);
+        exit;
+    }
+
+    function download_preview()
+    {
+        // Get filter parameters
+        $start_date = $_GET['start_date'] ?? DATE('Y-m-01');
+        $until_date = $_GET['until_date'] ?? DATE('Y-m-d');
+        $brand = $_GET['brand'] ?? '';
+        $marketplace = $_GET['marketplace'] ?? '';
+        $cs = $_GET['cs'] ?? '';
+        $keyword = $_GET['keyword'] ?? '';
+        $keyword_category = $_GET['keyword_category'] ?? '';
+        $id = $_GET['id'] ?? '';
+        $order_status = $_GET['order_status'] ?? '';
+        $ekspedisi = $_GET['ekspedisi'] ?? '';
+        $order_type = $_GET['order_type'] ?? '';
+        $ids = $_GET['ids'] ?? '';
+
+        // Build query
+        $qry = " DATE(date) >= '$start_date' AND DATE(date) <= '$until_date' ";
+
+        if ($id) {
+            $qry .= " AND customer = '$id' ";
+        }
+
+        if ($ids) {
+            $qry .= " AND id IN ($ids) ";
+        }
+
+        if ($brand) {
+            $brand_escaped = $this->db->escape_str($brand);
+            $qry .= " AND brand = '$brand_escaped' ";
+        }
+
+        if ($ekspedisi) {
+            $ekspedisi_escaped = $this->db->escape_str($ekspedisi);
+            $qry .= " AND shipping = '$ekspedisi_escaped' ";
+        }
+
+        if ($marketplace) {
+            $marketplace_escaped = $this->db->escape_str($marketplace);
+            $qry .= " AND marketplace = '$marketplace_escaped' ";
+        }
+
+        if ($cs) {
+            $cs_escaped = $this->db->escape_str($cs);
+            $qry .= " AND cs = '$cs_escaped' ";
+        }
+
+        if ($order_status) {
+            if ($order_status == "WEBHOOK") {
+                $qry .= " AND is_webhook = 0 AND is_manual = 0";
+            } else if ($order_status == "ACTIVE") {
+                $qry .= " AND order_status NOT IN ('RETURN','REFUND','CANCELLED','IN_CANCELLED','UNPAID') ";
+            } else if ($order_status == "READY_TO_SHIP") {
+                $qry .= " AND order_status IN ('READY_TO_SHIP','PENDING') ";
+            } else if ($order_status == "UNPAID") {
+                $qry .= " AND payment_status = 'Unpaid' AND order_status NOT IN ('RETURN','REFUND','CANCELLED','IN_CANCELLED') ";
+            } else if ($order_status == "SETTLEMENT") {
+                $qry .= " AND dana_pencairan > 0 AND is_disbursement > 0 ";
+            } else if ($order_status == "CANCELLED") {
+                $qry .= " AND order_status IN ('CANCELLED','IN_CANCEL') ";
+            } else {
+                $order_status_escaped = $this->db->escape_str($order_status);
+                $qry .= " AND order_status = '$order_status_escaped' ";
+            }
+        }
+
+        if ($keyword) {
+            $keyword_escaped = $this->db->escape_str($keyword);
+            if ($keyword_category == "Order ID") {
+                $qry .= " AND order_id LIKE '%$keyword_escaped%' ";
+            } else if ($keyword_category == "Username") {
+                $qry .= " AND c_username LIKE '%$keyword_escaped%' ";
+            } else if ($keyword_category == "Nama Pelanggan") {
+                $qry .= " AND customer_text LIKE '%$keyword_escaped%' ";
+            } else if ($keyword_category == "Nomor Pelanggan") {
+                $qry .= " AND phone LIKE '%$keyword_escaped%' ";
+            } else if ($keyword_category == "Nomor Resi") {
+                $qry .= " AND awb_number LIKE '%$keyword_escaped%' ";
+            } else if ($keyword_category == "Nama Produk") {
+                $qry .= " AND pesanan LIKE '%$keyword_escaped%' ";
+            }
+        }
+
+        if ($order_type == "Manual") {
+            $qry .= " AND is_manual = 1 ";
+        } else if ($order_type == "Marketplace") {
+            $qry .= " AND is_manual = 0 ";
+        }
+
+        // Get count
+        $count_query = $this->mymodel->selectWithQuery("SELECT COUNT(*) as total
+            FROM transaction
+            WHERE $qry AND type_sub = 'POS'");
+
+        $total_records = $count_query[0]['total'];
+
+        // Build filter summary
+        $filters = [];
+        if ($brand) $filters[] = "Brand: $brand";
+        if ($marketplace) $filters[] = "Marketplace: $marketplace";
+        if ($cs) $filters[] = "CS: $cs";
+        if ($order_status) $filters[] = "Status: $order_status";
+        if ($ekspedisi) $filters[] = "Ekspedisi: $ekspedisi";
+        if ($order_type) $filters[] = "Type: $order_type";
+        if ($keyword) $filters[] = "$keyword_category: $keyword";
+
+        $response = [
+            'success' => true,
+            'total_records' => $total_records,
+            'date_range' => $this->template->date_format_indo($start_date) . ' - ' . $this->template->date_format_indo($until_date),
+            'filters' => $filters
+        ];
+
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode($response);
         die;
     }
 
@@ -5148,7 +5442,47 @@ class Transaction extends BaseController
     ORDER BY id DESC
     LIMIT 10
     ");
+
+        // Get filter data for modal
+        $data['brands'] = $this->mymodel->selectWithQuery("SELECT * FROM brand ORDER BY code ASC");
+        $data['marketplaces'] = $this->mymodel->selectWithQuery("SELECT * FROM marketplace ORDER BY name ASC");
+        $data['cs_list'] = $this->mymodel->selectWithQuery("SELECT * FROM user WHERE role = '3' ORDER BY full_name ASC");
+        $data['shipping_list'] = $this->mymodel->selectWithQuery("SELECT * FROM shipping ORDER BY name ASC");
+
         $this->load->view("transaction/download_file", $data);
+    }
+
+    function cleanup_old_exports()
+    {
+        // Delete files older than 7 days
+        $seven_days_ago = DATE('Y-m-d H:i:s', strtotime('-7 days'));
+
+        // Get old files
+        $old_files = $this->mymodel->selectWithQuery("SELECT * FROM download_file
+            WHERE created_at < '$seven_days_ago'");
+
+        $deleted_count = 0;
+        foreach ($old_files as $file) {
+            // Delete physical file if exists
+            if (file_exists($file['file'])) {
+                if (unlink($file['file'])) {
+                    $deleted_count++;
+                }
+            }
+
+            // Delete database record
+            $this->db->delete('download_file', array('id' => $file['id']));
+        }
+
+        $response = [
+            'success' => true,
+            'deleted_count' => $deleted_count,
+            'message' => "Berhasil menghapus $deleted_count file export lama (>7 hari)"
+        ];
+
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode($response);
+        die;
     }
 
     function download_ajax()
