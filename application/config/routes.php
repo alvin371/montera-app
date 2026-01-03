@@ -55,6 +55,12 @@ $route['login'] = 'auth/login';
 $route['signup'] = 'auth/signup';
 $route['signup-process'] = 'auth/signup_process';
 
+// Katalog routes
+$route['katalog'] = 'katalog/index';
+$route['katalog/produk'] = 'katalog/produk';
+$route['katalog/harga'] = 'katalog/harga';
+$route['katalog/laporan'] = 'katalog/laporan';
+
 $route['default_controller'] = 'home/index';
 $route['404_override'] = 'page/error';
 $route['translate_uri_dashes'] = TRUE;
@@ -147,4 +153,42 @@ $route['auth/redirect'] = 'TiktokAuth/redirect_to_auth';
 $route['auth/callback'] = 'TiktokAuth/callback';        
 $route['cronjob/expense'] = 'Api_v3/generate_recurring_expense';
 $route['cronjob/sync-product'] = 'Api_v3/sync_all_product';
+
+$route['maintenance/landing-page/setup'] = 'Seed/landing_page_setup';
+$route['api/landing-page/icon-upload'] = 'LandingPageApi/upload_icon';
+$route['api/landing-page/(:any)'] = 'LandingPageApi/section/$1';
+
+$route['landing-page'] = 'Landing_page/index';
+$route['landing-page/features-data'] = 'Landing_page/features_data';
+$route['landing-page/features-header-update'] = 'Landing_page/features_header_update';
+$route['landing-page/features-save'] = 'Landing_page/features_save';
+$route['landing-page/features-delete'] = 'Landing_page/features_delete';
+$route['landing-page/navbar-data'] = 'Landing_page/navbar_data';
+$route['landing-page/navbar-logo-update'] = 'Landing_page/navbar_logo_update';
+$route['landing-page/navbar-link-save'] = 'Landing_page/navbar_link_save';
+$route['landing-page/navbar-link-delete'] = 'Landing_page/navbar_link_delete';
+$route['landing-page/hero-data'] = 'Landing_page/hero_data';
+$route['landing-page/hero-update'] = 'Landing_page/hero_update';
+$route['landing-page/new-products-data'] = 'Landing_page/new_products_data';
+$route['landing-page/new-products-header-update'] = 'Landing_page/new_products_header_update';
+$route['landing-page/new-products-save'] = 'Landing_page/new_products_save';
+$route['landing-page/new-products-delete'] = 'Landing_page/new_products_delete';
+$route['landing-page/customer-favorites-data'] = 'Landing_page/customer_favorites_data';
+$route['landing-page/customer-favorites-header-update'] = 'Landing_page/customer_favorites_header_update';
+$route['landing-page/customer-favorites-save'] = 'Landing_page/customer_favorites_save';
+$route['landing-page/customer-favorites-delete'] = 'Landing_page/customer_favorites_delete';
+$route['landing-page/team-data'] = 'Landing_page/team_data';
+$route['landing-page/team-header-update'] = 'Landing_page/team_header_update';
+$route['landing-page/team-save'] = 'Landing_page/team_save';
+$route['landing-page/team-delete'] = 'Landing_page/team_delete';
+$route['landing-page/testimonials-data'] = 'Landing_page/testimonials_data';
+$route['landing-page/testimonials-header-update'] = 'Landing_page/testimonials_header_update';
+$route['landing-page/testimonials-save'] = 'Landing_page/testimonials_save';
+$route['landing-page/testimonials-delete'] = 'Landing_page/testimonials_delete';
+$route['landing-page/footer-data'] = 'Landing_page/footer_data';
+$route['landing-page/footer-update'] = 'Landing_page/footer_update';
+$route['landing-page/footer-info-link-save'] = 'Landing_page/footer_info_link_save';
+$route['landing-page/footer-info-link-delete'] = 'Landing_page/footer_info_link_delete';
+$route['landing-page/footer-social-link-save'] = 'Landing_page/footer_social_link_save';
+$route['landing-page/footer-social-link-delete'] = 'Landing_page/footer_social_link_delete';
 
