@@ -156,6 +156,7 @@ $route['cronjob/sync-product'] = 'Api_v3/sync_all_product';
 
 $route['maintenance/landing-page/setup'] = 'Seed/landing_page_setup';
 $route['api/landing-page/icon-upload'] = 'LandingPageApi/upload_icon';
+$route['api/landing-page/image-upload'] = 'LandingPageApi/upload_image';
 $route['api/landing-page/(:any)'] = 'LandingPageApi/section/$1';
 
 $route['landing-page'] = 'Landing_page/index';

@@ -193,8 +193,10 @@
               <div class="lp-card-body">
                 <form id="navbarLogoForm" class="row g-3">
                   <div class="col-md-8">
-                    <label class="form-label">Logo URL</label>
-                    <input type="text" class="form-control" name="logo_url" required>
+                    <label class="form-label">Logo Image</label>
+                    <input type="hidden" class="form-control" name="logo_url" id="navbarLogoUrl" required>
+                    <input type="file" class="form-control" id="navbarLogoFile" accept=".svg,.png,.jpg,.jpeg,.webp">
+                    <div class="lp-muted mt-1" id="navbarLogoPreview">No image uploaded yet.</div>
                   </div>
                   <div class="col-md-4">
                     <label class="form-label">Logo Alt</label>
@@ -236,8 +238,10 @@
             </div>
             <form id="heroForm" class="row g-3">
               <div class="col-md-8">
-                <label class="form-label">Background Image URL</label>
-                <input type="text" class="form-control" name="background_image_url">
+                <label class="form-label">Background Image</label>
+                <input type="hidden" class="form-control" name="background_image_url" id="heroBackgroundUrl">
+                <input type="file" class="form-control" id="heroBackgroundFile" accept=".svg,.png,.jpg,.jpeg,.webp">
+                <div class="lp-muted mt-1" id="heroBackgroundPreview">No image uploaded yet.</div>
               </div>
               <div class="col-md-6">
                 <label class="form-label">Title Line 1</label>
@@ -557,8 +561,10 @@
               <div class="lp-card-body">
                 <form id="footerForm" class="row g-3">
                   <div class="col-md-8">
-                    <label class="form-label">Logo URL</label>
-                    <input type="text" class="form-control" name="logo_url">
+                    <label class="form-label">Logo Image</label>
+                    <input type="hidden" class="form-control" name="logo_url" id="footerLogoUrl">
+                    <input type="file" class="form-control" id="footerLogoFile" accept=".svg,.png,.jpg,.jpeg,.webp">
+                    <div class="lp-muted mt-1" id="footerLogoPreview">No image uploaded yet.</div>
                   </div>
                   <div class="col-md-4">
                     <label class="form-label">Logo Alt</label>
@@ -769,8 +775,10 @@
             <textarea class="form-control" id="productDescription" rows="3" required></textarea>
           </div>
           <div class="col-12">
-            <label class="form-label">Image URL</label>
-            <input type="text" class="form-control" id="productImage">
+            <label class="form-label">Product Image</label>
+            <input type="hidden" class="form-control" id="productImage">
+            <input type="file" class="form-control" id="productImageFile" accept=".svg,.png,.jpg,.jpeg,.webp">
+            <div class="lp-muted mt-1" id="productImagePreview">No image uploaded yet.</div>
           </div>
           <div class="col-12">
             <label class="form-label">Feature Lines (one per line: label|icon_text|icon_url)</label>
@@ -822,12 +830,16 @@
             <textarea class="form-control" id="favoriteProductDescription" rows="2"></textarea>
           </div>
           <div class="col-md-6">
-            <label class="form-label">Product Image URL</label>
-            <input type="text" class="form-control" id="favoriteProductImage">
+            <label class="form-label">Product Image</label>
+            <input type="hidden" class="form-control" id="favoriteProductImage">
+            <input type="file" class="form-control" id="favoriteProductImageFile" accept=".svg,.png,.jpg,.jpeg,.webp">
+            <div class="lp-muted mt-1" id="favoriteProductImagePreview">No image uploaded yet.</div>
           </div>
           <div class="col-md-6">
-            <label class="form-label">Mini Image URL</label>
-            <input type="text" class="form-control" id="favoriteMiniImage">
+            <label class="form-label">Mini Image</label>
+            <input type="hidden" class="form-control" id="favoriteMiniImage">
+            <input type="file" class="form-control" id="favoriteMiniImageFile" accept=".svg,.png,.jpg,.jpeg,.webp">
+            <div class="lp-muted mt-1" id="favoriteMiniImagePreview">No image uploaded yet.</div>
           </div>
         </form>
       </div>
@@ -859,8 +871,10 @@
             <input type="text" class="form-control" id="teamRole" required>
           </div>
           <div class="col-12">
-            <label class="form-label">Image URL</label>
-            <input type="text" class="form-control" id="teamImage">
+            <label class="form-label">Member Image</label>
+            <input type="hidden" class="form-control" id="teamImage">
+            <input type="file" class="form-control" id="teamImageFile" accept=".svg,.png,.jpg,.jpeg,.webp">
+            <div class="lp-muted mt-1" id="teamImagePreview">No image uploaded yet.</div>
           </div>
         </form>
       </div>
@@ -891,12 +905,16 @@
             <input type="text" class="form-control" id="testimonialRole">
           </div>
           <div class="col-md-6">
-            <label class="form-label">Before Image URL</label>
-            <input type="text" class="form-control" id="testimonialBefore">
+            <label class="form-label">Before Image</label>
+            <input type="hidden" class="form-control" id="testimonialBefore">
+            <input type="file" class="form-control" id="testimonialBeforeFile" accept=".svg,.png,.jpg,.jpeg,.webp">
+            <div class="lp-muted mt-1" id="testimonialBeforePreview">No image uploaded yet.</div>
           </div>
           <div class="col-md-6">
-            <label class="form-label">After Image URL</label>
-            <input type="text" class="form-control" id="testimonialAfter">
+            <label class="form-label">After Image</label>
+            <input type="hidden" class="form-control" id="testimonialAfter">
+            <input type="file" class="form-control" id="testimonialAfterFile" accept=".svg,.png,.jpg,.jpeg,.webp">
+            <div class="lp-muted mt-1" id="testimonialAfterPreview">No image uploaded yet.</div>
           </div>
           <div class="col-12">
             <label class="form-label">Content</label>
@@ -979,6 +997,9 @@
 </div>
 
 <script>
+  const landingBaseUrl = 'https://app.montera-group.com/';
+  const landingBaseApi = 'https://app.montera-group.com/api/';
+
   const navLinkModal = new bootstrap.Modal(document.getElementById('navLinkModal'));
   const featureModal = new bootstrap.Modal(document.getElementById('featureModal'));
   const productModal = new bootstrap.Modal(document.getElementById('productModal'));
@@ -1006,12 +1027,136 @@
     $('#lpAlert').html(html);
   }
 
+  const imageValidationRules = {
+    navbarLogo: { maxSizeMB: 1, ratio: 4 / 1, tolerance: 0.25, minWidth: 200, minHeight: 50 },
+    heroBackground: { maxSizeMB: 5, ratio: 16 / 9, tolerance: 0.2, minWidth: 1200, minHeight: 600 },
+    productImage: { maxSizeMB: 5, ratio: 1, tolerance: 0.1, minWidth: 600, minHeight: 600 },
+    favoriteProductImage: { maxSizeMB: 5, ratio: 1, tolerance: 0.1, minWidth: 600, minHeight: 600 },
+    favoriteMiniImage: { maxSizeMB: 3, ratio: 1, tolerance: 0.1, minWidth: 300, minHeight: 300 },
+    teamImage: { maxSizeMB: 3, ratio: 1, tolerance: 0.1, minWidth: 400, minHeight: 400 },
+    testimonialBefore: { maxSizeMB: 5, ratio: 1, tolerance: 0.1, minWidth: 500, minHeight: 500 },
+    testimonialAfter: { maxSizeMB: 5, ratio: 1, tolerance: 0.1, minWidth: 500, minHeight: 500 },
+    footerLogo: { maxSizeMB: 1, ratio: 4 / 1, tolerance: 0.25, minWidth: 200, minHeight: 50 }
+  };
+
+  function toAbsoluteUrl(value) {
+    if (!value) return '';
+    if (value.startsWith('http://') || value.startsWith('https://')) return value;
+    if (value.startsWith('/')) return `${landingBaseUrl}${value.substring(1)}`;
+    return `${landingBaseUrl}${value}`;
+  }
+
+  function normalizeUploadUrl(payload) {
+    if (!payload) return '';
+    if (payload.url) return payload.url;
+    if (payload.path) return toAbsoluteUrl(payload.path);
+    return '';
+  }
+
+  function setImageField(inputSelector, value, previewSelector) {
+    const url = toAbsoluteUrl(value);
+    $(inputSelector).val(url);
+    if (previewSelector) {
+      $(previewSelector).text(url ? `Current: ${url}` : 'No image uploaded yet.');
+    }
+  }
+
+  function validateImageFile(file, rules) {
+    return new Promise((resolve, reject) => {
+      if (!file) {
+        reject('Image file is required.');
+        return;
+      }
+      if (!file.type || !file.type.startsWith('image/')) {
+        reject('File must be an image.');
+        return;
+      }
+      if (rules && rules.maxSizeMB) {
+        const maxBytes = rules.maxSizeMB * 1024 * 1024;
+        if (file.size > maxBytes) {
+          reject(`Image must be <= ${rules.maxSizeMB}MB.`);
+          return;
+        }
+      }
+      if (file.type === 'image/svg+xml') {
+        resolve({ width: 0, height: 0 });
+        return;
+      }
+      const img = new Image();
+      const url = URL.createObjectURL(file);
+      img.onload = function() {
+        const width = img.width;
+        const height = img.height;
+        URL.revokeObjectURL(url);
+
+        if (rules && rules.minWidth && width < rules.minWidth) {
+          reject(`Image width must be at least ${rules.minWidth}px.`);
+          return;
+        }
+        if (rules && rules.minHeight && height < rules.minHeight) {
+          reject(`Image height must be at least ${rules.minHeight}px.`);
+          return;
+        }
+        if (rules && rules.ratio) {
+          const ratio = width / height;
+          const tolerance = rules.tolerance || 0;
+          const minRatio = rules.ratio * (1 - tolerance);
+          const maxRatio = rules.ratio * (1 + tolerance);
+          if (ratio < minRatio || ratio > maxRatio) {
+            reject(`Image must be proportional to ${(rules.ratio).toFixed(2)}:1.`);
+            return;
+          }
+        }
+        resolve({ width, height });
+      };
+      img.onerror = function() {
+        URL.revokeObjectURL(url);
+        reject('Invalid image file.');
+      };
+      img.src = url;
+    });
+  }
+
+  function uploadLandingImage(file, rules, onSuccess) {
+    if (!file) return;
+    validateImageFile(file, rules).then(function() {
+      const formData = new FormData();
+      formData.append('image', file);
+      $.ajax({
+        url: `${landingBaseApi}landing-page/image-upload`,
+        method: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function(response) {
+          const url = normalizeUploadUrl(response);
+          if (url) {
+            onSuccess(url);
+            return;
+          }
+          if (response.error) {
+            showAlert('danger', response.error);
+          } else {
+            showAlert('danger', 'Upload failed.');
+          }
+        },
+        error: function(xhr) {
+          const msg = xhr.responseJSON && xhr.responseJSON.error ? xhr.responseJSON.error : 'Upload failed.';
+          showAlert('danger', msg);
+        }
+      });
+    }).catch(function(message) {
+      showAlert('danger', message);
+    });
+  }
+
   function setPreviewUrl(url) {
     if (!url) return;
     $('#previewUrl').val(url);
-    $('#previewFrame').attr('src', url);
+    $('#previewFrame').attr('src', '');
     $('#previewOpen').attr('href', url);
     localStorage.setItem('landing_preview_url', url);
+    window.open(url, '_blank', 'noopener');
   }
 
   function initPreview() {
@@ -1051,10 +1196,10 @@
   }
 
   function loadNavbar() {
-    $.get('<?= base_url('landing-page/navbar-data') ?>', function(response) {
+    $.get(`${landingBaseUrl}landing-page/navbar-data`, function(response) {
       if (!response.success) return;
       currentNav = response.data || { links_left: [], links_right: [] };
-      $('#navbarLogoForm [name="logo_url"]').val(currentNav.logo ? currentNav.logo.url : '');
+      setImageField('#navbarLogoUrl', currentNav.logo ? currentNav.logo.url : '', '#navbarLogoPreview');
       $('#navbarLogoForm [name="logo_alt"]').val(currentNav.logo ? currentNav.logo.alt : '');
       renderNavLinks();
     }, 'json');
@@ -1100,7 +1245,7 @@
 
   function deleteNavLink(id, side) {
     if (!confirm('Delete this link?')) return;
-    $.post('<?= base_url('landing-page/navbar-link-delete') ?>', { id, side }, function(response) {
+    $.post(`${landingBaseUrl}landing-page/navbar-link-delete`, { id, side }, function(response) {
       if (response.success) {
         loadNavbar();
       } else {
@@ -1110,10 +1255,10 @@
   }
 
   function loadHero() {
-    $.get('<?= base_url('landing-page/hero-data') ?>', function(response) {
+    $.get(`${landingBaseUrl}landing-page/hero-data`, function(response) {
       if (!response.success) return;
       const data = response.data || {};
-      $('#heroForm [name="background_image_url"]').val(data.background_image_url || '');
+      setImageField('#heroBackgroundUrl', data.background_image_url || '', '#heroBackgroundPreview');
       $('#heroForm [name="title_line_1"]').val(data.title ? data.title.line_1 : '');
       $('#heroForm [name="title_line_2"]').val(data.title ? data.title.line_2 : '');
       $('#heroForm [name="subtitle"]').val(data.subtitle || '');
@@ -1125,7 +1270,7 @@
   }
 
   function loadFeatures() {
-    $.get('<?= base_url('landing-page/features-data') ?>', function(response) {
+    $.get(`${landingBaseUrl}landing-page/features-data`, function(response) {
       if (!response.success) return;
       const data = response.data || {};
       currentFeatures = data.items || [];
@@ -1201,7 +1346,7 @@
 
   function deleteFeature(id) {
     if (!confirm('Delete this feature?')) return;
-    $.post('<?= base_url('landing-page/features-delete') ?>', { id }, function(response) {
+    $.post(`${landingBaseUrl}landing-page/features-delete`, { id }, function(response) {
       if (response.success) {
         loadFeatures();
       } else {
@@ -1210,7 +1355,7 @@
     }, 'json');
   }
   function loadNewProducts() {
-    $.get('<?= base_url('landing-page/new-products-data') ?>', function(response) {
+    $.get(`${landingBaseUrl}landing-page/new-products-data`, function(response) {
       if (!response.success) return;
       const data = response.data || {};
       currentProducts = data.products || [];
@@ -1248,6 +1393,7 @@
     $('#productForm')[0].reset();
     $('#productId').val('');
     $('#productIconUrl').val('');
+    $('#productImagePreview').text('No image uploaded yet.');
   }
 
   function editProduct(id) {
@@ -1259,14 +1405,14 @@
     $('#productName').val(item.name || '');
     $('#productCategory').val(item.category || '');
     $('#productDescription').val(item.description || '');
-    $('#productImage').val(item.image || '');
+    setImageField('#productImage', item.image || '', '#productImagePreview');
     $('#productFeatures').val(formatFeatureLines(item.features || []));
     productModal.show();
   }
 
   function deleteProduct(id) {
     if (!confirm('Delete this product?')) return;
-    $.post('<?= base_url('landing-page/new-products-delete') ?>', { id }, function(response) {
+    $.post(`${landingBaseUrl}landing-page/new-products-delete`, { id }, function(response) {
       if (response.success) {
         loadNewProducts();
       } else {
@@ -1276,7 +1422,7 @@
   }
 
   function loadFavorites() {
-    $.get('<?= base_url('landing-page/customer-favorites-data') ?>', function(response) {
+    $.get(`${landingBaseUrl}landing-page/customer-favorites-data`, function(response) {
       if (!response.success) return;
       const data = response.data || {};
       currentFavorites = data.items || [];
@@ -1316,6 +1462,8 @@
   function resetFavoriteForm() {
     $('#favoriteForm')[0].reset();
     $('#favoriteId').val('');
+    $('#favoriteProductImagePreview').text('No image uploaded yet.');
+    $('#favoriteMiniImagePreview').text('No image uploaded yet.');
   }
 
   function editFavorite(id) {
@@ -1328,14 +1476,14 @@
     $('#favoriteDescription').val((item.category_description || []).join('\n'));
     $('#favoriteProductName').val(item.product_showcase ? item.product_showcase.name : '');
     $('#favoriteProductDescription').val(item.product_showcase ? item.product_showcase.description : '');
-    $('#favoriteProductImage').val(item.product_showcase ? item.product_showcase.image : '');
-    $('#favoriteMiniImage').val(item.product_showcase ? item.product_showcase.mini_image : '');
+    setImageField('#favoriteProductImage', item.product_showcase ? item.product_showcase.image : '', '#favoriteProductImagePreview');
+    setImageField('#favoriteMiniImage', item.product_showcase ? item.product_showcase.mini_image : '', '#favoriteMiniImagePreview');
     favoriteModal.show();
   }
 
   function deleteFavorite(id) {
     if (!confirm('Delete this item?')) return;
-    $.post('<?= base_url('landing-page/customer-favorites-delete') ?>', { id }, function(response) {
+    $.post(`${landingBaseUrl}landing-page/customer-favorites-delete`, { id }, function(response) {
       if (response.success) {
         loadFavorites();
       } else {
@@ -1345,7 +1493,7 @@
   }
 
   function loadTeam() {
-    $.get('<?= base_url('landing-page/team-data') ?>', function(response) {
+    $.get(`${landingBaseUrl}landing-page/team-data`, function(response) {
       if (!response.success) return;
       const data = response.data || {};
       currentTeam = data.members || [];
@@ -1379,6 +1527,7 @@
   function resetTeamForm() {
     $('#teamForm')[0].reset();
     $('#teamId').val('');
+    $('#teamImagePreview').text('No image uploaded yet.');
   }
 
   function editTeam(id) {
@@ -1389,13 +1538,13 @@
     $('#teamId').val(item.id);
     $('#teamName').val(item.name || '');
     $('#teamRole').val(item.role || '');
-    $('#teamImage').val(item.image || '');
+    setImageField('#teamImage', item.image || '', '#teamImagePreview');
     teamModal.show();
   }
 
   function deleteTeam(id) {
     if (!confirm('Delete this member?')) return;
-    $.post('<?= base_url('landing-page/team-delete') ?>', { id }, function(response) {
+    $.post(`${landingBaseUrl}landing-page/team-delete`, { id }, function(response) {
       if (response.success) {
         loadTeam();
       } else {
@@ -1405,7 +1554,7 @@
   }
 
   function loadTestimonials() {
-    $.get('<?= base_url('landing-page/testimonials-data') ?>', function(response) {
+    $.get(`${landingBaseUrl}landing-page/testimonials-data`, function(response) {
       if (!response.success) return;
       const data = response.data || {};
       currentTestimonials = data.items || [];
@@ -1441,6 +1590,8 @@
     $('#testimonialForm')[0].reset();
     $('#testimonialId').val('');
     $('#testimonialRating').val(5);
+    $('#testimonialBeforePreview').text('No image uploaded yet.');
+    $('#testimonialAfterPreview').text('No image uploaded yet.');
   }
 
   function editTestimonial(id) {
@@ -1451,8 +1602,8 @@
     $('#testimonialId').val(item.id);
     $('#testimonialName').val(item.name || '');
     $('#testimonialRole').val(item.role || '');
-    $('#testimonialBefore').val(item.before_image || '');
-    $('#testimonialAfter').val(item.after_image || '');
+    setImageField('#testimonialBefore', item.before_image || '', '#testimonialBeforePreview');
+    setImageField('#testimonialAfter', item.after_image || '', '#testimonialAfterPreview');
     $('#testimonialContent').val(item.content || '');
     $('#testimonialRating').val(item.rating || 5);
     testimonialModal.show();
@@ -1460,7 +1611,7 @@
 
   function deleteTestimonial(id) {
     if (!confirm('Delete this testimonial?')) return;
-    $.post('<?= base_url('landing-page/testimonials-delete') ?>', { id }, function(response) {
+    $.post(`${landingBaseUrl}landing-page/testimonials-delete`, { id }, function(response) {
       if (response.success) {
         loadTestimonials();
       } else {
@@ -1470,11 +1621,11 @@
   }
 
   function loadFooter() {
-    $.get('<?= base_url('landing-page/footer-data') ?>', function(response) {
+    $.get(`${landingBaseUrl}landing-page/footer-data`, function(response) {
       if (!response.success) return;
       const data = response.data || {};
       currentFooter = data;
-      $('#footerForm [name="logo_url"]').val(data.logo ? data.logo.url : '');
+      setImageField('#footerLogoUrl', data.logo ? data.logo.url : '', '#footerLogoPreview');
       $('#footerForm [name="logo_alt"]').val(data.logo ? data.logo.alt : '');
       $('#footerForm [name="taglines"]').val((data.taglines || []).join('\n'));
       $('#footerForm [name="newsletter_placeholder"]').val(data.newsletter ? data.newsletter.placeholder : '');
@@ -1543,7 +1694,7 @@
 
   function deleteFooterLink(id) {
     if (!confirm('Delete this link?')) return;
-    $.post('<?= base_url('landing-page/footer-info-link-delete') ?>', { id }, function(response) {
+    $.post(`${landingBaseUrl}landing-page/footer-info-link-delete`, { id }, function(response) {
       if (response.success) {
         loadFooter();
       } else {
@@ -1571,7 +1722,7 @@
 
   function deleteSocialLink(id) {
     if (!confirm('Delete this link?')) return;
-    $.post('<?= base_url('landing-page/footer-social-link-delete') ?>', { id }, function(response) {
+    $.post(`${landingBaseUrl}landing-page/footer-social-link-delete`, { id }, function(response) {
       if (response.success) {
         loadFooter();
       } else {
@@ -1591,7 +1742,11 @@
 
   $('#navbarLogoForm').on('submit', function(e) {
     e.preventDefault();
-    $.post('<?= base_url('landing-page/navbar-logo-update') ?>', $(this).serialize(), function(response) {
+    if (!$('#navbarLogoUrl').val()) {
+      showAlert('danger', 'Please upload a navbar logo image.');
+      return;
+    }
+    $.post(`${landingBaseUrl}landing-page/navbar-logo-update`, $(this).serialize(), function(response) {
       if (response.success) {
         showAlert('success', response.message);
         loadNavbar();
@@ -1614,7 +1769,7 @@
       label: $('#navLinkLabel').val(),
       href: $('#navLinkHref').val()
     };
-    $.post('<?= base_url('landing-page/navbar-link-save') ?>', data, function(response) {
+    $.post(`${landingBaseUrl}landing-page/navbar-link-save`, data, function(response) {
       if (response.success) {
         navLinkModal.hide();
         loadNavbar();
@@ -1626,7 +1781,11 @@
 
   $('#heroForm').on('submit', function(e) {
     e.preventDefault();
-    $.post('<?= base_url('landing-page/hero-update') ?>', $(this).serialize(), function(response) {
+    if (!$('#heroBackgroundUrl').val()) {
+      showAlert('danger', 'Please upload a hero background image.');
+      return;
+    }
+    $.post(`${landingBaseUrl}landing-page/hero-update`, $(this).serialize(), function(response) {
       if (response.success) {
         showAlert('success', response.message);
         loadHero();
@@ -1638,7 +1797,7 @@
 
   $('#featureHeaderForm').on('submit', function(e) {
     e.preventDefault();
-    $.post('<?= base_url('landing-page/features-header-update') ?>', $(this).serialize(), function(response) {
+    $.post(`${landingBaseUrl}landing-page/features-header-update`, $(this).serialize(), function(response) {
       if (response.success) {
         showAlert('success', response.message);
         loadFeatures();
@@ -1665,7 +1824,7 @@
       icon_alt: $('#featureIconAlt').val(),
       has_image: $('#featureHasImage').is(':checked') ? '1' : '0'
     };
-    $.post('<?= base_url('landing-page/features-save') ?>', payload, function(response) {
+    $.post(`${landingBaseUrl}landing-page/features-save`, payload, function(response) {
       if (response.success) {
         featureModal.hide();
         loadFeatures();
@@ -1681,17 +1840,20 @@
     const formData = new FormData();
     formData.append('icon', file);
     $.ajax({
-      url: '<?= base_url('api/landing-page/icon-upload') ?>',
+      url: `${landingBaseApi}landing-page/icon-upload`,
       method: 'POST',
       data: formData,
       processData: false,
       contentType: false,
       success: function(response) {
-        if (response.url) {
-          $('#featureIconUrl').val(response.url);
+        const url = normalizeUploadUrl(response);
+        if (url) {
+          $('#featureIconUrl').val(url);
           $('#featureIconType').val(response.type || '');
         } else if (response.error) {
           showAlert('danger', response.error);
+        } else {
+          showAlert('danger', 'Upload failed.');
         }
       },
       error: function(xhr) {
@@ -1701,9 +1863,21 @@
     });
   });
 
+  $('#navbarLogoFile').on('change', function() {
+    uploadLandingImage(this.files[0], imageValidationRules.navbarLogo, function(url) {
+      setImageField('#navbarLogoUrl', url, '#navbarLogoPreview');
+    });
+  });
+
+  $('#heroBackgroundFile').on('change', function() {
+    uploadLandingImage(this.files[0], imageValidationRules.heroBackground, function(url) {
+      setImageField('#heroBackgroundUrl', url, '#heroBackgroundPreview');
+    });
+  });
+
   $('#newProductsHeaderForm').on('submit', function(e) {
     e.preventDefault();
-    $.post('<?= base_url('landing-page/new-products-header-update') ?>', $(this).serialize(), function(response) {
+    $.post(`${landingBaseUrl}landing-page/new-products-header-update`, $(this).serialize(), function(response) {
       if (response.success) {
         showAlert('success', response.message);
         loadNewProducts();
@@ -1720,6 +1894,10 @@
   });
 
   $('#productSaveBtn').on('click', function() {
+    if (!$('#productImage').val()) {
+      showAlert('danger', 'Please upload a product image.');
+      return;
+    }
     const payload = {
       id: $('#productId').val(),
       name: $('#productName').val(),
@@ -1728,7 +1906,7 @@
       image: $('#productImage').val(),
       features: JSON.stringify(parseFeatureLines($('#productFeatures').val()))
     };
-    $.post('<?= base_url('landing-page/new-products-save') ?>', payload, function(response) {
+    $.post(`${landingBaseUrl}landing-page/new-products-save`, payload, function(response) {
       if (response.success) {
         productModal.hide();
         loadNewProducts();
@@ -1744,16 +1922,19 @@
     const formData = new FormData();
     formData.append('icon', file);
     $.ajax({
-      url: '<?= base_url('api/landing-page/icon-upload') ?>',
+      url: `${landingBaseApi}landing-page/icon-upload`,
       method: 'POST',
       data: formData,
       processData: false,
       contentType: false,
       success: function(response) {
-        if (response.url) {
-          $('#productIconUrl').val(response.url);
+        const url = normalizeUploadUrl(response);
+        if (url) {
+          $('#productIconUrl').val(url);
         } else if (response.error) {
           showAlert('danger', response.error);
+        } else {
+          showAlert('danger', 'Upload failed.');
         }
       },
       error: function(xhr) {
@@ -1763,9 +1944,51 @@
     });
   });
 
+  $('#productImageFile').on('change', function() {
+    uploadLandingImage(this.files[0], imageValidationRules.productImage, function(url) {
+      setImageField('#productImage', url, '#productImagePreview');
+    });
+  });
+
+  $('#favoriteProductImageFile').on('change', function() {
+    uploadLandingImage(this.files[0], imageValidationRules.favoriteProductImage, function(url) {
+      setImageField('#favoriteProductImage', url, '#favoriteProductImagePreview');
+    });
+  });
+
+  $('#favoriteMiniImageFile').on('change', function() {
+    uploadLandingImage(this.files[0], imageValidationRules.favoriteMiniImage, function(url) {
+      setImageField('#favoriteMiniImage', url, '#favoriteMiniImagePreview');
+    });
+  });
+
+  $('#teamImageFile').on('change', function() {
+    uploadLandingImage(this.files[0], imageValidationRules.teamImage, function(url) {
+      setImageField('#teamImage', url, '#teamImagePreview');
+    });
+  });
+
+  $('#testimonialBeforeFile').on('change', function() {
+    uploadLandingImage(this.files[0], imageValidationRules.testimonialBefore, function(url) {
+      setImageField('#testimonialBefore', url, '#testimonialBeforePreview');
+    });
+  });
+
+  $('#testimonialAfterFile').on('change', function() {
+    uploadLandingImage(this.files[0], imageValidationRules.testimonialAfter, function(url) {
+      setImageField('#testimonialAfter', url, '#testimonialAfterPreview');
+    });
+  });
+
+  $('#footerLogoFile').on('change', function() {
+    uploadLandingImage(this.files[0], imageValidationRules.footerLogo, function(url) {
+      setImageField('#footerLogoUrl', url, '#footerLogoPreview');
+    });
+  });
+
   $('#favoritesHeaderForm').on('submit', function(e) {
     e.preventDefault();
-    $.post('<?= base_url('landing-page/customer-favorites-header-update') ?>', $(this).serialize(), function(response) {
+    $.post(`${landingBaseUrl}landing-page/customer-favorites-header-update`, $(this).serialize(), function(response) {
       if (response.success) {
         showAlert('success', response.message);
         loadFavorites();
@@ -1782,6 +2005,10 @@
   });
 
   $('#favoriteSaveBtn').on('click', function() {
+    if (!$('#favoriteProductImage').val() || !$('#favoriteMiniImage').val()) {
+      showAlert('danger', 'Please upload both product and mini images.');
+      return;
+    }
     const payload = {
       id: $('#favoriteId').val(),
       category_heading: $('#favoriteHeading').val(),
@@ -1791,7 +2018,7 @@
       product_image: $('#favoriteProductImage').val(),
       product_mini_image: $('#favoriteMiniImage').val()
     };
-    $.post('<?= base_url('landing-page/customer-favorites-save') ?>', payload, function(response) {
+    $.post(`${landingBaseUrl}landing-page/customer-favorites-save`, payload, function(response) {
       if (response.success) {
         favoriteModal.hide();
         loadFavorites();
@@ -1803,7 +2030,7 @@
 
   $('#teamHeaderForm').on('submit', function(e) {
     e.preventDefault();
-    $.post('<?= base_url('landing-page/team-header-update') ?>', $(this).serialize(), function(response) {
+    $.post(`${landingBaseUrl}landing-page/team-header-update`, $(this).serialize(), function(response) {
       if (response.success) {
         showAlert('success', response.message);
         loadTeam();
@@ -1820,13 +2047,17 @@
   });
 
   $('#teamSaveBtn').on('click', function() {
+    if (!$('#teamImage').val()) {
+      showAlert('danger', 'Please upload a team member image.');
+      return;
+    }
     const payload = {
       id: $('#teamId').val(),
       name: $('#teamName').val(),
       role: $('#teamRole').val(),
       image: $('#teamImage').val()
     };
-    $.post('<?= base_url('landing-page/team-save') ?>', payload, function(response) {
+    $.post(`${landingBaseUrl}landing-page/team-save`, payload, function(response) {
       if (response.success) {
         teamModal.hide();
         loadTeam();
@@ -1838,7 +2069,7 @@
 
   $('#testimonialsHeaderForm').on('submit', function(e) {
     e.preventDefault();
-    $.post('<?= base_url('landing-page/testimonials-header-update') ?>', $(this).serialize(), function(response) {
+    $.post(`${landingBaseUrl}landing-page/testimonials-header-update`, $(this).serialize(), function(response) {
       if (response.success) {
         showAlert('success', response.message);
         loadTestimonials();
@@ -1855,6 +2086,10 @@
   });
 
   $('#testimonialSaveBtn').on('click', function() {
+    if (!$('#testimonialBefore').val() || !$('#testimonialAfter').val()) {
+      showAlert('danger', 'Please upload both before and after images.');
+      return;
+    }
     const payload = {
       id: $('#testimonialId').val(),
       name: $('#testimonialName').val(),
@@ -1864,7 +2099,7 @@
       content: $('#testimonialContent').val(),
       rating: $('#testimonialRating').val()
     };
-    $.post('<?= base_url('landing-page/testimonials-save') ?>', payload, function(response) {
+    $.post(`${landingBaseUrl}landing-page/testimonials-save`, payload, function(response) {
       if (response.success) {
         testimonialModal.hide();
         loadTestimonials();
@@ -1876,7 +2111,11 @@
 
   $('#footerForm').on('submit', function(e) {
     e.preventDefault();
-    $.post('<?= base_url('landing-page/footer-update') ?>', $(this).serialize(), function(response) {
+    if (!$('#footerLogoUrl').val()) {
+      showAlert('danger', 'Please upload a footer logo image.');
+      return;
+    }
+    $.post(`${landingBaseUrl}landing-page/footer-update`, $(this).serialize(), function(response) {
       if (response.success) {
         showAlert('success', response.message);
         loadFooter();
@@ -1898,7 +2137,7 @@
       label: $('#footerLinkLabel').val(),
       href: $('#footerLinkHref').val()
     };
-    $.post('<?= base_url('landing-page/footer-info-link-save') ?>', payload, function(response) {
+    $.post(`${landingBaseUrl}landing-page/footer-info-link-save`, payload, function(response) {
       if (response.success) {
         footerLinkModal.hide();
         loadFooter();
@@ -1921,7 +2160,7 @@
       href: $('#socialHref').val(),
       icon: $('#socialIcon').val()
     };
-    $.post('<?= base_url('landing-page/footer-social-link-save') ?>', payload, function(response) {
+    $.post(`${landingBaseUrl}landing-page/footer-social-link-save`, payload, function(response) {
       if (response.success) {
         socialLinkModal.hide();
         loadFooter();
