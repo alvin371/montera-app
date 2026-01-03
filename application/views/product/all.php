@@ -231,23 +231,99 @@
 
 </style>
 <div class="container-fluid">
-    <?php $this->load->view('operasional/menu') ?>
-    <?php $this->load->view('product/menu') ?>
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb" style="background: transparent; padding: 0; margin: 0; font-size: 14px;">
+            <li class="breadcrumb-item"><a href="<?= base_url() ?>katalog" style="color: #8c8c8c; text-decoration: none;">Katalog</a></li>
+            <li class="breadcrumb-item"><a href="<?= base_url() ?>product" style="color: #8c8c8c; text-decoration: none;">Produk</a></li>
+            <li class="breadcrumb-item active" style="color: rgba(0, 0, 0, 0.85);" aria-current="page">Pantauan</li>
+        </ol>
+    </nav>
 
-    <div class="card">
-        <div class="card-header">
-            <div class="d-flex justify-content-between align-items-center">
-                <h5 class="mb-0" style="color: rgba(0, 0, 0, 0.85);">Product Management</h5>
-                <?php if (in_array($user['role'], array('1', '2', '3', '6'))) { ?>
-                    <div class="d-flex gap-2">
-                        <a href="#!" onclick="sync_data('<?= $start_date ?>','<?= $until_date ?>')" class="btn btn-outline-secondary">
-                            <i class="bi bi-cloud-download me-1"></i> Sync Data
-                        </a>
-                        <a href="#!" onclick="create()" class="btn btn-primary">
-                            <i class="bi bi-plus me-1"></i> Tambah Data
-                        </a>
+    <!-- Page Title -->
+    <h2 class="mb-4" style="color: #1a3353; font-weight: 600;">Produk</h2>
+
+    <!-- Main Tabs Navigation -->
+    <div class="mb-3">
+        <ul class="nav nav-tabs" style="border-bottom: 2px solid #f0f0f0;">
+            <li class="nav-item">
+                <a class="nav-link active" href="<?= base_url() ?>product" style="color: #1890ff; border-bottom: 2px solid #1890ff; font-weight: 500;">
+                    Pantauan
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="<?= base_url() ?>product?tab=master" style="color: rgba(0, 0, 0, 0.65);">
+                    Master
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="<?= base_url() ?>product?tab=upload" style="color: rgba(0, 0, 0, 0.65);">
+                    Upload
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="<?= base_url() ?>product?tab=download" style="color: rgba(0, 0, 0, 0.65);">
+                    Download
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="<?= base_url() ?>product?tab=in-review" style="color: rgba(0, 0, 0, 0.65);">
+                    In Review
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="<?= base_url() ?>product?tab=arsip" style="color: rgba(0, 0, 0, 0.65);">
+                    Arsip
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="<?= base_url() ?>product?tab=produk-channel" style="color: rgba(0, 0, 0, 0.65);">
+                    Produk Channel
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="<?= base_url() ?>product?tab=naikkan-produk" style="color: rgba(0, 0, 0, 0.65);">
+                    Naikkan Produk
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="card border-0">
+        <div class="card-header bg-white border-0 pb-0">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <!-- Filter Buttons -->
+                <div class="d-flex gap-2 flex-wrap align-items-center">
+                    <button class="btn btn-outline-primary" style="border-radius: 4px; font-size: 14px; position: relative;">
+                        Belum Upload
+                        <span class="badge bg-danger ms-2" style="border-radius: 10px;">32</span>
+                    </button>
+                    <button class="btn btn-outline-secondary" style="border-radius: 4px; font-size: 14px;">
+                        Atribut Tidak Seragam
+                    </button>
+                    <button class="btn btn-outline-secondary" style="border-radius: 4px; font-size: 14px;">
+                        Harga Tidak Seragam
+                    </button>
+                    <button class="btn btn-outline-secondary" style="border-radius: 4px; font-size: 14px;">
+                        SKU Tidak Seragam
+                    </button>
+                </div>
+
+                <!-- Right Side: Total and Refresh -->
+                <div class="d-flex gap-3 align-items-center">
+                    <div style="font-size: 14px; color: rgba(0, 0, 0, 0.65);">
+                        <span style="font-weight: 500;">Total</span>
+                        <span class="ms-2" style="color: #1890ff; font-weight: 600;"><?= $total_all ?></span>
                     </div>
-                <?php } ?>
+                    <button class="btn btn-link p-0" onclick="location.reload();" style="color: rgba(0, 0, 0, 0.45);">
+                        <i class="bi bi-arrow-clockwise" style="font-size: 18px;"></i>
+                    </button>
+                    <?php if (in_array($user['role'], array('1', '2', '3', '6'))) { ?>
+                        <a href="#!" onclick="create()" class="btn btn-primary" style="border-radius: 4px;">
+                            <i class="bi bi-plus me-1"></i> Upload
+                        </a>
+                    <?php } ?>
+                </div>
             </div>
         </div>
         <div class="card-body">

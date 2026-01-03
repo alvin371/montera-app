@@ -552,9 +552,10 @@ if (!$_SESSION['is_login']) {
     $menu_ads = $menu_ads_tiktok = $menu_ads_meta = $menu_ads_shopee = $menu_ads_lazada = '';
     $menu_endorsement = $menu_influencer = $menu_influencer_dummy = $menu_calendar = $menu_payment_fee = $menu_codeboost = '';
     $menu_order_customer = $menu_toko = $menu_order_item = $menu_crm_mg = $menu_crm_pome = $menu_grup_wa = '';
-    $menu_operasional = $menu_stock = $menu_product = $menu_product_3rd = $menu_discount = $menu_marketplace = $menu_shipping = '';
+    $menu_operasional = $menu_stock = $menu_product = $menu_katalog = $menu_product_3rd = $menu_discount = $menu_marketplace = $menu_shipping = '';
     $menu_hr_management = $menu_quest_level = $menu_position = $menu_benefit = $menu_quest = $menu_milestone = $menu_recruitment = $menu_roles = '';
     $menu_akun = $menu_user = $menu_profile = $menu_logout = '';
+    $menu_landing_page = '';
     
     // Get user permissions for menu visibility using module names from clear_and_replace_modules.sql
     // Access permission library through CodeIgniter instance
@@ -601,7 +602,8 @@ if (!$_SESSION['is_login']) {
     
     // Operations - show if user has access to any operations module
     $can_view_operasional = $CI->permission->check_permission($user_id, 'stock', 'view') ||
-                           $CI->permission->check_permission($user_id, 'product', 'view');
+                           $CI->permission->check_permission($user_id, 'product', 'view') ||
+                           $CI->permission->check_permission($user_id, 'katalog', 'view');
     
     // HR Management - show if user has access to any HR module
     $can_view_hr_management = $CI->permission->check_permission($user_id, 'quest_level', 'view') ||
@@ -648,6 +650,10 @@ if (!$_SESSION['is_login']) {
         // Operations
         'stock' => $CI->permission->check_permission($user_id, 'stock', 'view'),
         'product' => $CI->permission->check_permission($user_id, 'product', 'view'),
+        'katalog' => $CI->permission->check_permission($user_id, 'katalog', 'view'),
+
+        // Website
+        'landing_page' => $CI->permission->check_permission($user_id, 'landing_page', 'view'),
         
         // HR Management
         'quest_level' => $CI->permission->check_permission($user_id, 'quest_level', 'view'),
@@ -671,6 +677,8 @@ if (!$_SESSION['is_login']) {
       $menu_dashboard = 'active';
     } else if ($uri_1 == 'report') {
       $menu_report = 'active';
+    } else if ($uri_1 == 'landing-page') {
+      $menu_landing_page = 'active';
     } else if ($uri_1 == 'label') {
       $menu_label = 'active';
     } else if ($uri_1 == 'group-wa') {
@@ -761,10 +769,12 @@ if (!$_SESSION['is_login']) {
       } elseif ($uri_1 == 'group-wa') {
         $menu_grup_wa = 'active';
       }
-    } else if ($uri_1 == 'stock' || $uri_1 == 'product' ||  $uri_1 == 'marketplace' || $uri_1 == 'marketplace-account' || $uri_1 == 'shipping' || $uri_1 == 'channel') {
+    } else if ($uri_1 == 'stock' || $uri_1 == 'product' || $uri_1 == 'katalog' || $uri_1 == 'marketplace' || $uri_1 == 'marketplace-account' || $uri_1 == 'shipping' || $uri_1 == 'channel') {
       $menu_operasional = 'show';
       if ($uri_1 == 'stock') {
         $menu_stock = 'active';
+      } else if ($uri_1 == 'katalog') {
+        $menu_katalog = 'active';
       } else if ($uri_1 == 'product' || $uri_1 == 'marketplace' || $uri_1 == 'shipping' || $uri_1 == 'marketplace-account') {
         $menu_product = 'active';
       }
@@ -797,9 +807,10 @@ if (!$_SESSION['is_login']) {
       $menu_ads = $menu_ads_tiktok = $menu_ads_meta = $menu_ads_shopee = $menu_ads_lazada = '';
       $menu_endorsement = $menu_influencer = $menu_influencer_dummy = $menu_calendar = $menu_payment_fee = $menu_codeboost = '';
       $menu_order_customer = $menu_toko = $menu_order_item = $menu_crm_mg = $menu_crm_pome = $menu_grup_wa = '';
-      $menu_operasional = $menu_stock = $menu_product = '';
+      $menu_operasional = $menu_stock = $menu_product = $menu_katalog = '';
       $menu_hr_management = $menu_quest_level = $menu_position = $menu_benefit = $menu_quest = $menu_milestone = $menu_recruitment = $menu_roles = '';
       $menu_akun = $menu_user = $menu_profile = $menu_logout = '';
+      $menu_landing_page = '';
     }
     ?>
 
@@ -824,6 +835,13 @@ if (!$_SESSION['is_login']) {
           <a href="<?= base_url() ?>expense" class="item-menu <?= $menu_expense ?>">
             <i class="icon bi bi-credit-card"></i>
             PENGELUARAN
+          </a>
+        <?php endif; ?>
+
+        <?php if ($modules_permissions['landing_page']): ?>
+          <a href="<?= base_url() ?>landing-page" class="item-menu <?= $menu_landing_page ?>">
+            <i class="icon bi bi-window"></i>
+            LANDING PAGE CONFIG
           </a>
         <?php endif; ?>
 
@@ -1021,6 +1039,12 @@ if (!$_SESSION['is_login']) {
               <a href="<?= base_url() ?>product" class="ms-3 item-menu <?= $menu_product ?>">
                 <i class="icon bi bi-box"></i>
                 KONFIGURASI
+              </a>
+            <?php endif; ?>
+            <?php if ($modules_permissions['katalog']): ?>
+              <a href="<?= base_url() ?>katalog" class="ms-3 item-menu <?= $menu_katalog ?>">
+                <i class="icon bi bi-grid-3x3-gap"></i>
+                KATALOG
               </a>
             <?php endif; ?>
           </div>
