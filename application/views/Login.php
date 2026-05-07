@@ -97,33 +97,27 @@
         console.log(str);
         if (str.indexOf("success") != -1) {
           $(".form-message").hide().html(response).slideDown("fast");
-          setTimeout(function() {
-            // Get redirect URL from server
-            $.ajax({
-              url: "<?= base_url() ?>auth/get_redirect_url",
-              type: "GET",
-              dataType: "json",
-              success: function(redirectResponse) {
-                console.log("Redirect response:", redirectResponse);
-                console.log("Redirecting to:", redirectResponse.url);
+          $.ajax({
+            url: "<?= base_url() ?>auth/get_redirect_url",
+            type: "GET",
+            dataType: "json",
+            success: function(redirectResponse) {
+              console.log("Redirect response:", redirectResponse);
+              console.log("Redirecting to:", redirectResponse.url);
 
-                // Ensure we have a valid URL
-                if (redirectResponse.url && redirectResponse.url !== '') {
-                  window.location.href = redirectResponse.url;
-                } else {
-                  console.error("Empty redirect URL, using base URL");
-                  window.location.href = "<?= base_url() ?>";
-                }
-              },
-              error: function(xhr, status, error) {
-                console.error("Redirect URL fetch failed:", error);
-                console.log("Falling back to base URL");
-                // Fallback to homepage if redirect URL fetch fails
+              if (redirectResponse.url && redirectResponse.url !== '') {
+                window.location.href = redirectResponse.url;
+              } else {
+                console.error("Empty redirect URL, using base URL");
                 window.location.href = "<?= base_url() ?>";
               }
-            });
-            $(".btn-send").removeClass("disabled").html('Masuk Sekarang').attr('disabled', false);
-          }, 2500);
+            },
+            error: function(xhr, status, error) {
+              console.error("Redirect URL fetch failed:", error);
+              window.location.href = "<?= base_url() ?>";
+            }
+          });
+          $(".btn-send").removeClass("disabled").html('Masuk Sekarang').attr('disabled', false);
         } else {
           $(".form-message").hide().html(response).slideDown("fast");
           $(".btn-send").removeClass("disabled").html('Masuk Sekarang').attr('disabled', false);

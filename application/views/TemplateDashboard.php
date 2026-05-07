@@ -593,8 +593,7 @@ if (!$_SESSION['is_login']) {
                            $CI->permission->check_permission($user_id, 'codeboost', 'view');
     
     // Order & Customer Management - show if user has access to any module
-    $can_view_order_customer = $CI->permission->check_permission($user_id, 'marketplace_account', 'view') ||
-                               $CI->permission->check_permission($user_id, 'transaction', 'view') ||
+    $can_view_order_customer = $CI->permission->check_permission($user_id, 'transaction', 'view') ||
                                $CI->permission->check_permission($user_id, 'transaction_item', 'view') ||
                                $CI->permission->check_permission($user_id, 'crm_mg', 'view') ||
                                $CI->permission->check_permission($user_id, 'crm_pome', 'view') ||
@@ -603,6 +602,7 @@ if (!$_SESSION['is_login']) {
     // Operations - show if user has access to any operations module
     $can_view_operasional = $CI->permission->check_permission($user_id, 'stock', 'view') ||
                            $CI->permission->check_permission($user_id, 'product', 'view') ||
+                           $CI->permission->check_permission($user_id, 'marketplace_account', 'view') ||
                            $CI->permission->check_permission($user_id, 'katalog', 'view');
     
     // HR Management - show if user has access to any HR module
@@ -775,8 +775,10 @@ if (!$_SESSION['is_login']) {
         $menu_stock = 'active';
       } else if ($uri_1 == 'katalog') {
         $menu_katalog = 'active';
-      } else if ($uri_1 == 'product' || $uri_1 == 'marketplace' || $uri_1 == 'shipping' || $uri_1 == 'marketplace-account') {
+      } else if ($uri_1 == 'product') {
         $menu_product = 'active';
+      } else if ($uri_1 == 'marketplace-account') {
+        $menu_marketplace = 'active';
       }
     } else if ($uri_1 == 'quest_level' || $uri_1 == 'position' || $uri_1 == 'benefit' || $uri_1 == 'quest' || $uri_1 == 'milestone' || $uri_1 == 'recruitment') {
       $menu_hr_management = 'show';
@@ -1035,10 +1037,16 @@ if (!$_SESSION['is_login']) {
                 STOK
               </a>
             <?php endif; ?>
-            <?php if ($modules_permissions['product'] || $modules_permissions['marketplace-account']): ?>
+            <?php if ($modules_permissions['product']): ?>
               <a href="<?= base_url() ?>product" class="ms-3 item-menu <?= $menu_product ?>">
                 <i class="icon bi bi-box"></i>
-                KONFIGURASI
+                PRODUCT
+              </a>
+            <?php endif; ?>
+            <?php if ($modules_permissions['marketplace_account']): ?>
+              <a href="<?= base_url() ?>marketplace-account" class="ms-3 item-menu <?= $menu_marketplace ?>">
+                <i class="icon bi bi-shop"></i>
+                MARKETPLACE ACCOUNT
               </a>
             <?php endif; ?>
             <?php if ($modules_permissions['katalog']): ?>

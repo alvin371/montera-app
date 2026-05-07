@@ -1,0 +1,12 @@
+.git
+.github
+.env
+.DS_Store
+node_modules
+docker-compose.yml
+application/cache/*
+!application/cache/index.html
+!application/cache/sessions
+application/cache/sessions/*
+application/logs/*
+!application/logs/index.html
