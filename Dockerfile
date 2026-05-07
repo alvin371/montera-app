@@ -3,47 +3,43 @@ FROM php:8.2-apache
 WORKDIR /var/www/html
 
 RUN apt-get update && apt-get install -y \
+    default-mysql-client \
     git \
+    libfreetype6-dev \
+    libicu-dev \
+    libjpeg62-turbo-dev \
+    libonig-dev \
+    libpng-dev \
+    libxml2-dev \
+    libzip-dev \
     unzip \
     zip \
-    libpng-dev \
-    libjpeg-dev \
-    libfreetype6-dev \
-    libzip-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install gd mysqli pdo pdo_mysql zip \
+    && docker-php-ext-install -j"$(nproc)" \
+        bcmath \
+        exif \
+        gd \
+        intl \
+        mbstring \
+        mysqli \
+        pdo \
+        pdo_mysql \
+        zip \
     && a2enmod rewrite headers \
     && rm -rf /var/lib/apt/lists/*
 
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
-
+COPY docker/apache/vhost.conf /etc/apache2/sites-available/000-default.conf
+COPY docker/entrypoint.sh /usr/local/bin/montera-entrypoint
 COPY . /var/www/html
 
-RUN if [ ! -f .env ]; then cp .env.example .env; fi
-
-RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 755 /var/www/html
-
-RUN composer install --no-dev --optimize-autoloader || true
-
-RUN echo '\
-<VirtualHost *:80>\n\
-    ServerAdmin webmaster@localhost\n\
-    DocumentRoot /var/www/html\n\
-\n\
-    <Directory /var/www/html>\n\
-        Options Indexes FollowSymLinks\n\
-        AllowOverride All\n\
-        Require all granted\n\
-    </Directory>\n\
-\n\
-    # Make Apache/PHP aware of HTTPS when behind reverse proxy\n\
-    SetEnvIf X-Forwarded-Proto "https" HTTPS=on\n\
-\n\
-    ErrorLog ${APACHE_LOG_DIR}/error.log\n\
-    CustomLog ${APACHE_LOG_DIR}/access.log combined\n\
-</VirtualHost>\n' > /etc/apache2/sites-available/000-default.conf
+RUN chmod +x /usr/local/bin/montera-entrypoint \
+    && mkdir -p /var/www/html/application/cache/sessions /var/www/html/application/logs \
+    && chown -R www-data:www-data /var/www/html \
+    && find /var/www/html -type d -exec chmod 755 {} \; \
+    && find /var/www/html -type f -exec chmod 644 {} \; \
+    && chmod -R 775 /var/www/html/application/cache /var/www/html/application/logs
 
 EXPOSE 80
 
+ENTRYPOINT ["montera-entrypoint"]
 CMD ["apache2-foreground"]

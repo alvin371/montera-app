@@ -84,7 +84,7 @@ $db['default'] = array(
 	'database' => env('DB_DATABASE', 'database_name'),
 	'dbdriver' => env('DB_DRIVER', 'mysqli'),
 	'dbprefix' => '',
-	'pconnect' => FALSE,
+	'pconnect' => strtolower((string) env('DB_PCONNECT', 'true')) === 'true',
 	'db_debug' => (env('CI_ENV', 'development') !== 'production'),
 	'cache_on' => FALSE,
 	'cachedir' => '',
@@ -95,5 +95,5 @@ $db['default'] = array(
 	'compress' => FALSE,
 	'stricton' => FALSE,
 	'failover' => array(),
-	'save_queries' => TRUE
+	'save_queries' => strtolower((string) env('DB_SAVE_QUERIES', 'false')) === 'true'
 );
