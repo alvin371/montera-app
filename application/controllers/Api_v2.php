@@ -42,6 +42,42 @@ class Api_v2 extends CI_Controller
         $this->app_secret_meta = env('META_APP_SECRET', '');
     }
 
+    private function ensureMarketplaceAccountFallbackImage($marketplace)
+    {
+        $marketplace = strtoupper((string) $marketplace);
+        $file_map = array(
+            'TIKTOK' => 'tiktok-default.png',
+            'SHOPEE' => 'shopee-default.png',
+            'LAZADA' => 'lazada-default.png',
+            'META' => 'meta-default.png',
+        );
+        $source_map = array(
+            'TIKTOK' => FCPATH . 'assets/img/icon/icon-tiktok.png',
+            'SHOPEE' => FCPATH . 'assets/img/icon/icon-shopee.png',
+            'LAZADA' => FCPATH . 'assets/img/icon/icon-lazada.png',
+            'META' => FCPATH . 'assets/img/marketplace/5.png',
+        );
+
+        $target_name = $file_map[$marketplace] ?? 'default.png';
+        $target_dir = FCPATH . 'assets/img/marketplace_account/';
+        $target_path = $target_dir . $target_name;
+
+        if (file_exists($target_path)) {
+            return $target_name;
+        }
+
+        if (!is_dir($target_dir)) {
+            @mkdir($target_dir, 0777, true);
+        }
+
+        $source_path = $source_map[$marketplace] ?? FCPATH . 'assets/img/icon/icon-no.png';
+        if (file_exists($source_path)) {
+            @copy($source_path, $target_path);
+        }
+
+        return $target_name;
+    }
+
     public function index()
     {
         $dt = $_GET;
@@ -408,6 +444,9 @@ class Api_v2 extends CI_Controller
         $dt['shop_id'] = $shop_id;
         $dt['shop_code'] = $shop_code;
         $dt['shop_name'] = $shop_name;
+        if (!$check || empty($check['img'])) {
+            $dt['img'] = $this->ensureMarketplaceAccountFallbackImage($marketplace);
+        }
 
         if ($check) {
             $dt['updated_at'] = DATE("Y-m-d H:i:s");
